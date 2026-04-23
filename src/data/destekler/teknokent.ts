@@ -1,0 +1,79 @@
+import type { DestekProgrami } from "@/types";
+
+export const teknokentDestekleri: DestekProgrami[] = [
+  {
+    slug: "teknokent-kurumlar-vergisi",
+    ad: "Teknokent Kurumlar Vergisi Muafiyeti (4691)",
+    kurum: "Teknokent / Hazine",
+    kategori: "TEKNOKENT",
+    tur: "VERGI_MUAFIYETI",
+    aciklama:
+      "Teknoloji Geliştirme Bölgesi'nde (Teknokent) yazılım ve Ar-Ge faaliyetlerinden elde edilen kazançlar kurumlar vergisinden muaf.",
+    amac: "Teknokentlerde Ar-Ge ve yazılım faaliyetlerini teşvik etmek.",
+    aktif: true,
+    mevzuatUrl: "https://www.resmigazete.gov.tr/eskiler/2001/07/20010706.htm",
+    etiketler: ["teknokent", "vergi muafiyeti", "kurumlar vergisi", "yazılım", "ar-ge"],
+    oncelik: 1,
+    kriterler: {
+      teknokentZorunlu: true,
+      notlar: "2028 yılına kadar uzatılmış muafiyet. Yazılım geliştirme ve Ar-Ge faaliyetlerinden elde edilen gelirler muaf.",
+    },
+  },
+  {
+    slug: "teknokent-gelir-vergisi-stopaj",
+    ad: "Teknokent Ar-Ge Personeli Gelir Vergisi Stopaj Desteği",
+    kurum: "Teknokent / Hazine",
+    kategori: "TEKNOKENT",
+    tur: "VERGI_MUAFIYETI",
+    aciklama:
+      "Teknokent'te çalışan Ar-Ge, tasarım ve destek personelinin ücretlerine ait gelir vergisi stopajı muafiyeti.",
+    amac: "Ar-Ge personeli maliyetini azaltmak.",
+    hibeOrani: 100,
+    aktif: true,
+    mevzuatUrl: "https://www.resmigazete.gov.tr/eskiler/2001/07/20010706.htm",
+    etiketler: ["teknokent", "gelir vergisi", "stopaj", "ar-ge personeli"],
+    oncelik: 1,
+    kriterler: {
+      teknokentZorunlu: true,
+      notlar: "Lisans veya üzeri eğitim sahibi Ar-Ge personeli için %100 muafiyet. 2028'e kadar geçerli.",
+    },
+  },
+  {
+    slug: "teknokent-kdv-istisnasi",
+    ad: "Teknokent Yazılım Satışı KDV İstisnası",
+    kurum: "Teknokent / Gelir İdaresi",
+    kategori: "TEKNOKENT",
+    tur: "VERGI_MUAFIYETI",
+    aciklama:
+      "Teknokent'te üretilen yazılımların yurt içi ve yurt dışı satışları KDV'den istisnadır.",
+    amac: "Yazılım ihracatını ve ticaretini teşvik etmek.",
+    aktif: true,
+    mevzuatUrl: "https://www.gib.gov.tr/node/89882",
+    etiketler: ["kdv", "yazılım", "teknokent", "ihracat", "satış"],
+    oncelik: 1,
+    kriterler: {
+      teknokentZorunlu: true,
+      notlar: "Yazılım teslimi ve hizmetleri kapsar; donanım satışları kapsam dışı.",
+    },
+  },
+  {
+    slug: "teknokent-patent-destek",
+    ad: "Teknokent Patent Tescil ve Lisans Gider Desteği",
+    kurum: "Sanayi Bakanlığı",
+    kategori: "TEKNOKENT",
+    tur: "HIBE",
+    aciklama: "Teknokent'te yapılan Ar-Ge sonuçlarının patentlenmesi ve lisanslanması giderlerine destek.",
+    amac: "Fikri mülkiyet haklarını güçlendirmek.",
+    butceUstSinir: 200000,
+    hibeOrani: 80,
+    aktif: true,
+    mevzuatUrl: "https://www.sanayi.gov.tr/hizmetler/ar-ge-ve-teknoloji/teknoloji-gelistirme-bolgeleri",
+    etiketler: ["patent", "teknokent", "ar-ge", "fikri mülkiyet", "lisans"],
+    oncelik: 3,
+    kriterler: {
+      teknokentZorunlu: true,
+      argeZorunlu: true,
+      notlar: "Ar-Ge çıktısının patentlenme süreci için; Türk Patent ve Marka Kurumu başvurusu şartı.",
+    },
+  },
+];

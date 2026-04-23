@@ -1,0 +1,129 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Firma ───────────────────────────────────────────────────────────────────
+
+model FirmaProfili {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ad                   String
+  vergiNo              String?  @unique
+  kurulusYili          Int
+  sirketTuru           SirketTuru
+  sektorKodu           String
+  sektorAdi            String
+  calisanSayisi        Int
+  yillikCiro           Float
+  ihracatYapiyorMu     Boolean  @default(false)
+  argeYapiyorMu        Boolean  @default(false)
+  teknokentteMi        Boolean  @default(false)
+  osbdeMi              Boolean  @default(false)
+  il                   String
+  ilce                 String?
+  kadinGirisimci       Boolean  @default(false)
+  gencGirisimci        Boolean  @default(false)
+  engellıCalisanVarMi  Boolean  @default(false)
+  alinanDestekler      String[]
+  notlar               String?  @db.Text
+
+  projeler ProjeRaporu[]
+
+  @@map("firma_profilleri")
+}
+
+// ─── Destek Programı (dinamik, admin güncelleyebilir) ─────────────────────────
+
+model DestekProgrami {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  slug             String          @unique
+  ad               String
+  kurum            String
+  kategori         DestekKategori
+  tur              DestekTuru
+  aciklama         String          @db.Text
+  amac             String          @db.Text
+  butceUstSinir    Float?
+  hibeOrani        Float?
+  basvuruBaslangic DateTime?
+  basvuruBitis     DateTime?
+  aktif            Boolean         @default(true)
+  mevzuatUrl       String
+  rehberUrl        String?
+  kriterler        Json
+  etiketler        String[]
+  oncelik          Int             @default(5)
+
+  // Otomatik güncelleme takibi
+  sonGuncelleyenKullanici String?
+  guncellemNotu           String?
+
+  @@map("destek_programlari")
+}
+
+// ─── Proje Raporu ─────────────────────────────────────────────────────────────
+
+model ProjeRaporu {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  firmaId         String
+  firma           FirmaProfili @relation(fields: [firmaId], references: [id], onDelete: Cascade)
+  hedefDestekSlug String
+  orijinalIcerik  String       @db.Text
+  aiOnerileri     Json?
+
+  @@map("proje_raporlari")
+}
+
+// ─── Sistem Ayarları (admin paneli) ──────────────────────────────────────────
+
+model SistemAyarlari {
+  id    String @id @default("tekil")
+  veri  Json
+
+  @@map("sistem_ayarlari")
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum SirketTuru {
+  AS
+  LTD
+  SAHIS
+  KOOPERATIF
+  DERNEK_VAKIF
+  DIGER
+}
+
+enum DestekKategori {
+  TUBITAK
+  KOSGEB
+  TKDK
+  AB
+  SGK
+  TEKNOKENT
+  KALKINMA
+  TICARET
+  SANAYI
+  TARIM
+  DIGER
+}
+
+enum DestekTuru {
+  HIBE
+  KREDI
+  VERGI_MUAFIYETI
+  PRIM_DESTEGI
+  KARMA
+}
