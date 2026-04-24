@@ -1,44 +1,20 @@
-import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
 import type { DestekProgrami } from "@/types";
 import { KATEGORI_ADI, KATEGORI_RENK, TUR_ADI, paraCevir } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import { ExternalLink, ArrowLeft, Calendar, Building, TrendingUp } from "lucide-react";
 import Link from "next/link";
-
-async function destekGetir(slug: string): Promise<DestekProgrami | null> {
-  try {
-    const d = await prisma.destekProgrami.findUnique({ where: { slug } });
-    if (!d) return null;
-    return {
-      slug: d.slug, ad: d.ad, kurum: d.kurum,
-      kategori: d.kategori as DestekProgrami["kategori"],
-      tur: d.tur as DestekProgrami["tur"],
-      aciklama: d.aciklama, amac: d.amac,
-      butceUstSinir: d.butceUstSinir ?? undefined,
-      hibeOrani: d.hibeOrani ?? undefined,
-      basvuruBaslangic: d.basvuruBaslangic?.toISOString(),
-      basvuruBitis: d.basvuruBitis?.toISOString(),
-      aktif: d.aktif, mevzuatUrl: d.mevzuatUrl,
-      rehberUrl: d.rehberUrl ?? undefined,
-      kriterler: d.kriterler as DestekProgrami["kriterler"],
-      etiketler: d.etiketler, oncelik: d.oncelik,
-    };
-  } catch {
-    const { tumDestekler } = await import("@/data/destekler");
-    return tumDestekler.find((d) => d.slug === slug) ?? null;
-  }
-}
+import { tumDestekler } from "@/data/destekler";
 
 export default async function DestekDetaySayfasi({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const destek = await destekGetir(slug);
+  const destek = tumDestekler.find((d) => d.slug === slug) ?? null;
   if (!destek) notFound();
 
   const k = destek.kriterler;
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-10">
+    <div className="container py-10 max-w-3xl">
       <Link href="/destekler" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 mb-6">
         <ArrowLeft size={14} />
         Tüm destekler
@@ -72,9 +48,9 @@ export default async function DestekDetaySayfasi({ params }: { params: Promise<{
           </div>
         )}
         {destek.butceUstSinir && (
-          <div className="bg-green-50 border border-green-100 rounded-xl p-4">
-            <div className="text-green-600 text-xs font-medium mb-1">Maksimum Bütçe</div>
-            <div className="text-lg font-bold text-green-700">{paraCevir(destek.butceUstSinir)}</div>
+          <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4">
+            <div className="text-emerald-600 text-xs font-medium mb-1">Maksimum Bütçe</div>
+            <div className="text-lg font-bold text-emerald-700">{paraCevir(destek.butceUstSinir)}</div>
           </div>
         )}
         <div className="bg-slate-50 border border-slate-100 rounded-xl p-4">
@@ -86,7 +62,7 @@ export default async function DestekDetaySayfasi({ params }: { params: Promise<{
         </div>
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-xl divide-y divide-slate-100 mb-6">
+      <div className="card divide-y divide-slate-100 mb-6">
         <div className="p-4">
           <h2 className="font-semibold text-slate-800 mb-2">Amaç</h2>
           <p className="text-slate-600 text-sm">{destek.amac}</p>
@@ -101,10 +77,10 @@ export default async function DestekDetaySayfasi({ params }: { params: Promise<{
 
         <div className="p-4">
           <h2 className="font-semibold text-slate-800 mb-3">Uygunluk Kriterleri</h2>
-          <div className="space-y-2 text-sm">
+          <div className="space-y-1 text-sm">
             {k.sirketTurleri && <KriterSatiri etiket="Şirket türü" deger={k.sirketTurleri.join(", ")} />}
             {k.minCalisan !== undefined && <KriterSatiri etiket="Min. çalışan" deger={`${k.minCalisan} kişi`} />}
-            {k.maxCalisan !== undefined && <KriterSatiri etiket="Maks. çalışan" deger={`${k.maxCalisan} kişi (KOBİ sınırı)`} />}
+            {k.maxCalisan !== undefined && <KriterSatiri etiket="Maks. çalışan" deger={`${k.maxCalisan} kişi`} />}
             {k.minCiro !== undefined && <KriterSatiri etiket="Min. ciro" deger={paraCevir(k.minCiro)} />}
             {k.maxCiro !== undefined && <KriterSatiri etiket="Maks. ciro" deger={paraCevir(k.maxCiro)} />}
             {k.sektorler && <KriterSatiri etiket="Sektörler" deger={k.sektorler.join(", ")} />}
@@ -132,18 +108,18 @@ export default async function DestekDetaySayfasi({ params }: { params: Promise<{
       </div>
 
       {destek.basvuruBitis && (
-        <div className="flex items-center gap-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 mb-6">
+        <div className="flex items-center gap-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-6">
           <Calendar size={15} />
           Son başvuru tarihi: {new Date(destek.basvuruBitis).toLocaleDateString("tr-TR")}
         </div>
       )}
 
-      <div className="flex gap-3">
+      <div className="flex flex-wrap gap-3">
         <a
           href={destek.mevzuatUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-700 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors"
+          className="btn-md btn-primary gap-2"
         >
           <ExternalLink size={14} />
           Resmi Mevzuat
@@ -153,16 +129,13 @@ export default async function DestekDetaySayfasi({ params }: { params: Promise<{
             href={destek.rehberUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 border border-slate-200 hover:border-slate-400 text-slate-700 text-sm font-medium px-5 py-2.5 rounded-lg transition-colors"
+            className="btn-md btn-secondary"
           >
             Başvuru Rehberi
           </a>
         )}
-        <Link
-          href="/proje-asistani"
-          className="inline-flex items-center gap-2 border border-purple-200 hover:border-purple-400 text-purple-700 text-sm font-medium px-5 py-2.5 rounded-lg transition-colors ml-auto"
-        >
-          Proje Yaz →
+        <Link href="/proje-asistani" className="btn-md btn-secondary ml-auto">
+          Proje Asistanı →
         </Link>
       </div>
     </div>

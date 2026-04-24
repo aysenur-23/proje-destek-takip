@@ -1,13 +1,3 @@
-import { PrismaClient } from "@prisma/client";
-
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
-};
-
-export const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({
-    log: process.env.NODE_ENV === "development" ? ["query", "error"] : ["error"],
-  });
-
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+// Firebase Firestore bağlantısı — yakında eklenecek
+// Şu an statik verilerle çalışıyor; API route'larındaki try/catch bu dosya yerine statik veri kullanır
+export const prisma: null = null;

@@ -3,16 +3,20 @@
 import { useState } from "react";
 import type { DestekProgrami, ProjeOnerisi } from "@/types";
 import { KATEGORI_ADI } from "@/lib/utils";
-import { FileText, Sparkles, ChevronDown, ChevronUp, AlertCircle, CheckCircle } from "lucide-react";
+import {
+  FileText,
+  Sparkles,
+  ChevronDown,
+  ChevronUp,
+  AlertCircle,
+  CheckCircle2,
+  Lock,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type DestekOzet = Pick<DestekProgrami, "slug" | "ad" | "kurum" | "kategori">;
 
-interface Props {
-  destekler: DestekOzet[];
-}
-
-export function ProjeAsistaniClient({ destekler }: Props) {
+export function ProjeAsistaniClient({ destekler }: { destekler: DestekOzet[] }) {
   const [raporMetni, setRaporMetni] = useState("");
   const [secilenSlug, setSecilenSlug] = useState("");
   const [yukleniyor, setYukleniyor] = useState(false);
@@ -21,9 +25,10 @@ export function ProjeAsistaniClient({ destekler }: Props) {
   const [akisMetni, setAkisMetni] = useState("");
 
   const secilenDestek = destekler.find((d) => d.slug === secilenSlug);
+  const hazir = raporMetni.trim().length > 50 && !!secilenSlug;
 
   async function analiz() {
-    if (!raporMetni.trim() || !secilenSlug) return;
+    if (!hazir || yukleniyor) return;
     setYukleniyor(true);
     setHata(null);
     setOneri(null);
@@ -46,31 +51,29 @@ export function ProjeAsistaniClient({ destekler }: Props) {
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        const parca = decoder.decode(value, { stream: true });
-        tamMetin += parca;
+        tamMetin += decoder.decode(value, { stream: true });
         setAkisMetni(tamMetin);
       }
 
-      // Son yanıtı JSON olarak parse et
       const jsonEslesmesi = tamMetin.match(/\{[\s\S]*\}/);
       if (jsonEslesmesi) {
         setOneri(JSON.parse(jsonEslesmesi[0]));
         setAkisMetni("");
       }
     } catch {
-      setHata("AI analizi sırasında bir hata oluştu. API anahtarını ve bağlantınızı kontrol edin.");
+      setHata("AI analizi sırasında bir hata oluştu. API anahtarınızı ve bağlantınızı kontrol edin.");
     } finally {
       setYukleniyor(false);
     }
   }
 
   return (
-    <div className="grid lg:grid-cols-2 gap-6">
-      {/* Sol: Giriş */}
+    <div className="grid gap-6 lg:grid-cols-2">
+      {/* ── Sol: Girdi ── */}
       <div className="space-y-4">
-        <div className="bg-white border border-slate-200 rounded-xl p-5">
-          <label className="block text-sm font-medium text-slate-700 mb-3">
-            <FileText size={14} className="inline mr-1.5" />
+        {/* Destek seçici */}
+        <div className="card p-5">
+          <label className="mb-2 block text-sm font-semibold text-slate-800">
             Hedef Destek Programı
           </label>
           <select
@@ -78,7 +81,7 @@ export function ProjeAsistaniClient({ destekler }: Props) {
             value={secilenSlug}
             onChange={(e) => setSecilenSlug(e.target.value)}
           >
-            <option value="">— Bir destek seçin —</option>
+            <option value="">— Başvuracağınız desteği seçin —</option>
             {Object.entries(KATEGORI_ADI).map(([kat, katAdi]) => {
               const grup = destekler.filter((d) => d.kategori === kat);
               if (grup.length === 0) return null;
@@ -95,76 +98,106 @@ export function ProjeAsistaniClient({ destekler }: Props) {
           </select>
 
           {secilenDestek && (
-            <div className="mt-2 text-xs text-slate-500 bg-slate-50 rounded-lg px-3 py-2">
-              <strong>{secilenDestek.kurum}</strong> — {KATEGORI_ADI[secilenDestek.kategori]}
+            <div className="mt-2.5 flex items-center gap-2 rounded-xl bg-blue-50 border border-blue-100 px-3 py-2">
+              <FileText size={13} className="text-blue-500 shrink-0" />
+              <span className="text-xs text-blue-700">
+                <strong>{secilenDestek.kurum}</strong> — {KATEGORI_ADI[secilenDestek.kategori]}
+              </span>
             </div>
           )}
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-xl p-5">
-          <label className="block text-sm font-medium text-slate-700 mb-3">
-            Proje Raporu / Başvuru Metni
-          </label>
+        {/* Rapor metin alanı */}
+        <div className="card p-5">
+          <div className="mb-2 flex items-center justify-between">
+            <label className="text-sm font-semibold text-slate-800">
+              Proje Raporu / Başvuru Metni
+            </label>
+            <span className="text-xs text-slate-400">
+              {raporMetni.split(/\s+/).filter(Boolean).length} kelime
+            </span>
+          </div>
           <textarea
-            className="input min-h-[320px] resize-y font-mono text-xs leading-relaxed"
+            className="input min-h-[300px] resize-y font-mono text-xs leading-relaxed"
             value={raporMetni}
             onChange={(e) => setRaporMetni(e.target.value)}
-            placeholder={`Proje raporunuzu buraya yapıştırın veya yazın...\n\nÖrn:\n- Proje özeti\n- Hedefler ve beklenen çıktılar\n- Yöntem ve iş planı\n- Bütçe gerekçesi\n- Beklenen etkiler`}
+            placeholder={`Proje raporunuzu yapıştırın veya yazın...\n\nBölümler:\n• Proje özeti ve amacı\n• Hedefler ve beklenen çıktılar\n• Yöntem ve iş planı\n• Bütçe gerekçesi\n• Beklenen etkiler`}
           />
-          <div className="flex items-center justify-between mt-2 text-xs text-slate-400">
-            <span>{raporMetni.length.toLocaleString("tr-TR")} karakter</span>
-            <span>{raporMetni.split(/\s+/).filter(Boolean).length.toLocaleString("tr-TR")} kelime</span>
-          </div>
+          {raporMetni.length > 0 && raporMetni.trim().length < 50 && (
+            <p className="mt-1.5 text-xs text-amber-600">
+              Daha anlamlı analiz için en az 50 karakter girin.
+            </p>
+          )}
         </div>
 
+        {/* Analiz butonu */}
         <button
           onClick={analiz}
-          disabled={!raporMetni.trim() || !secilenSlug || yukleniyor}
-          className="w-full flex items-center justify-center gap-2 py-3 bg-purple-600 hover:bg-purple-500 disabled:bg-slate-200 disabled:text-slate-400 text-white font-medium rounded-xl transition-colors"
+          disabled={!hazir || yukleniyor}
+          className={cn(
+            "btn-lg w-full gap-2 transition-all",
+            hazir && !yukleniyor
+              ? "bg-violet-600 text-white hover:bg-violet-500 shadow-md shadow-violet-600/20"
+              : "cursor-not-allowed bg-slate-100 text-slate-400",
+          )}
         >
           {yukleniyor ? (
             <>
-              <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
               Analiz ediliyor...
             </>
           ) : (
             <>
-              <Sparkles size={16} />
+              <Sparkles size={17} />
               AI ile Analiz Et
             </>
           )}
         </button>
+
+        {/* Premium notu */}
+        <div className="flex items-start gap-2 rounded-xl border border-violet-100 bg-violet-50 px-3 py-2.5 text-xs text-violet-700">
+          <Lock size={12} className="mt-0.5 shrink-0" />
+          Bu özellik Premium üyelere açıktır. Giriş yaparak 3 ücretsiz analiz hakkı kazanın.
+        </div>
       </div>
 
-      {/* Sağ: Sonuçlar */}
+      {/* ── Sağ: Sonuçlar ── */}
       <div>
+        {/* Hata */}
         {hata && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-700 flex items-start gap-2">
+          <div className="mb-4 flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
             <AlertCircle size={16} className="mt-0.5 shrink-0" />
             {hata}
           </div>
         )}
 
+        {/* Streaming önizleme */}
         {yukleniyor && akisMetni && (
-          <div className="bg-white border border-slate-200 rounded-xl p-5">
-            <div className="flex items-center gap-2 mb-3 text-purple-600">
-              <div className="w-4 h-4 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />
-              <span className="text-sm font-medium">AI analiz ediyor...</span>
+          <div className="card p-5 mb-4">
+            <div className="mb-3 flex items-center gap-2 text-violet-600">
+              <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-violet-300 border-t-violet-600" />
+              <span className="text-sm font-medium">AI raporu inceliyor...</span>
             </div>
-            <pre className="text-xs text-slate-500 whitespace-pre-wrap font-mono overflow-hidden">
-              {akisMetni.slice(-800)}
+            <pre className="max-h-48 overflow-hidden text-[11px] text-slate-400 whitespace-pre-wrap font-mono leading-relaxed">
+              {akisMetni.slice(-600)}
             </pre>
           </div>
         )}
 
+        {/* Boş durum */}
         {!yukleniyor && !oneri && !hata && (
-          <div className="bg-slate-50 border border-dashed border-slate-200 rounded-xl p-10 text-center text-slate-400">
-            <Sparkles size={36} className="mx-auto mb-3 opacity-40" />
-            <p className="text-sm">Proje metninizi girin ve hedef desteği seçin.</p>
-            <p className="text-xs mt-1">AI bölüm bazlı öneriler sunacak.</p>
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 py-20 text-center">
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-violet-50">
+              <Sparkles size={28} className="text-violet-400" />
+            </div>
+            <p className="font-medium text-slate-600">Henüz analiz yapılmadı</p>
+            <p className="mt-1 text-sm text-slate-400">
+              Sol taraftan desteği seçin ve raporu girin.
+            </p>
           </div>
         )}
 
+        {/* Sonuçlar */}
         {oneri && <OnerilerPanel oneri={oneri} />}
       </div>
     </div>
@@ -172,44 +205,61 @@ export function ProjeAsistaniClient({ destekler }: Props) {
 }
 
 function OnerilerPanel({ oneri }: { oneri: ProjeOnerisi }) {
+  const puanRenk =
+    oneri.genelPuan >= 70
+      ? "text-emerald-600"
+      : oneri.genelPuan >= 50
+        ? "text-amber-500"
+        : "text-red-500";
+
+  const cubukRenk =
+    oneri.genelPuan >= 70
+      ? "bg-emerald-500"
+      : oneri.genelPuan >= 50
+        ? "bg-amber-400"
+        : "bg-red-400";
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 animate-slide-up">
       {/* Genel puan */}
-      <div className="bg-white border border-slate-200 rounded-xl p-5">
-        <div className="flex items-center justify-between mb-3">
+      <div className="card p-5">
+        <div className="mb-4 flex items-center justify-between">
           <h2 className="font-semibold text-slate-900">Genel Değerlendirme</h2>
-          <div className={cn(
-            "text-2xl font-bold",
-            oneri.genelPuan >= 70 ? "text-green-600" : oneri.genelPuan >= 50 ? "text-amber-500" : "text-red-500"
-          )}>
-            {oneri.genelPuan}/100
-          </div>
+          <span className={cn("text-3xl font-bold tabular-nums", puanRenk)}>
+            {oneri.genelPuan}
+            <span className="text-base font-normal text-slate-400">/100</span>
+          </span>
         </div>
-        <div className="w-full bg-slate-100 rounded-full h-2 mb-3">
+
+        <div className="mb-4 h-2 w-full overflow-hidden rounded-full bg-slate-100">
           <div
-            className={cn("h-2 rounded-full transition-all", oneri.genelPuan >= 70 ? "bg-green-500" : oneri.genelPuan >= 50 ? "bg-amber-400" : "bg-red-400")}
+            className={cn("h-2 rounded-full transition-all duration-700", cubukRenk)}
             style={{ width: `${oneri.genelPuan}%` }}
           />
         </div>
-        <p className="text-slate-600 text-sm">{oneri.genelYorum}</p>
+
+        <p className="text-sm text-slate-600 leading-relaxed">{oneri.genelYorum}</p>
 
         {oneri.oncelikliDuzeltmeler.length > 0 && (
-          <div className="mt-4 pt-4 border-t border-slate-100">
-            <p className="text-xs font-medium text-red-600 mb-2">Öncelikli Düzeltmeler:</p>
-            <ul className="space-y-1">
+          <div className="mt-4 rounded-xl border border-red-100 bg-red-50 p-3">
+            <p className="mb-2 text-xs font-semibold text-red-700">Öncelikli Düzeltmeler</p>
+            <ol className="space-y-1.5">
               {oneri.oncelikliDuzeltmeler.map((d, i) => (
-                <li key={i} className="flex items-start gap-1.5 text-xs text-red-600">
-                  <span className="font-bold">{i + 1}.</span>
+                <li key={i} className="flex items-start gap-2 text-xs text-red-700">
+                  <span className="shrink-0 font-bold">{i + 1}.</span>
                   {d}
                 </li>
               ))}
-            </ul>
+            </ol>
           </div>
         )}
       </div>
 
       {/* Bölüm önerileri */}
-      <div className="space-y-3">
+      <div className="space-y-2">
+        <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 px-1">
+          Bölüm Analizi
+        </p>
         {oneri.bolumler.map((bolum, i) => (
           <BolumKarti key={i} bolum={bolum} />
         ))}
@@ -221,33 +271,47 @@ function OnerilerPanel({ oneri }: { oneri: ProjeOnerisi }) {
 function BolumKarti({ bolum }: { bolum: ProjeOnerisi["bolumler"][number] }) {
   const [acik, setAcik] = useState(bolum.puan < 70);
 
+  const { bg, text } =
+    bolum.puan >= 70
+      ? { bg: "bg-emerald-100", text: "text-emerald-700" }
+      : bolum.puan >= 50
+        ? { bg: "bg-amber-100", text: "text-amber-700" }
+        : { bg: "bg-red-100", text: "text-red-700" };
+
   return (
-    <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+    <div className="card overflow-hidden">
       <button
-        className="w-full flex items-center justify-between p-4 text-left hover:bg-slate-50 transition-colors"
+        className="flex w-full items-center justify-between p-4 text-left transition-colors hover:bg-slate-50"
         onClick={() => setAcik(!acik)}
       >
         <div className="flex items-center gap-3">
-          <div className={cn(
-            "w-10 h-10 rounded-lg flex items-center justify-center text-sm font-bold",
-            bolum.puan >= 70 ? "bg-green-100 text-green-700" : bolum.puan >= 50 ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700"
-          )}>
+          <div
+            className={cn(
+              "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-sm font-bold",
+              bg,
+              text,
+            )}
+          >
             {bolum.puan}
           </div>
-          <span className="font-medium text-slate-800 text-sm">{bolum.baslik}</span>
+          <span className="text-sm font-medium text-slate-800">{bolum.baslik}</span>
         </div>
-        {acik ? <ChevronUp size={16} className="text-slate-400" /> : <ChevronDown size={16} className="text-slate-400" />}
+        {acik ? (
+          <ChevronUp size={15} className="shrink-0 text-slate-400" />
+        ) : (
+          <ChevronDown size={15} className="shrink-0 text-slate-400" />
+        )}
       </button>
 
       {acik && (
-        <div className="px-4 pb-4 border-t border-slate-100 pt-3 space-y-3">
+        <div className="space-y-3 border-t border-slate-100 px-4 pb-4 pt-3">
           {bolum.sorunlar.length > 0 && (
             <div>
-              <p className="text-xs font-medium text-red-600 mb-1.5">Sorunlar:</p>
+              <p className="mb-1.5 text-xs font-semibold text-red-600">Sorunlar</p>
               <ul className="space-y-1">
                 {bolum.sorunlar.map((s, i) => (
                   <li key={i} className="flex items-start gap-1.5 text-xs text-slate-600">
-                    <AlertCircle size={12} className="mt-0.5 text-red-400 shrink-0" />
+                    <AlertCircle size={11} className="mt-0.5 shrink-0 text-red-400" />
                     {s}
                   </li>
                 ))}
@@ -256,11 +320,11 @@ function BolumKarti({ bolum }: { bolum: ProjeOnerisi["bolumler"][number] }) {
           )}
 
           <div>
-            <p className="text-xs font-medium text-green-600 mb-1.5">
-              <CheckCircle size={12} className="inline mr-1" />
-              Önerilen Değişiklikler:
+            <p className="mb-1.5 flex items-center gap-1 text-xs font-semibold text-emerald-700">
+              <CheckCircle2 size={12} />
+              Önerilen Değişiklikler
             </p>
-            <p className="text-xs text-slate-600 bg-green-50 border border-green-100 rounded-lg p-3 whitespace-pre-wrap leading-relaxed">
+            <p className="whitespace-pre-wrap rounded-xl border border-emerald-100 bg-emerald-50 p-3 text-xs leading-relaxed text-slate-700">
               {bolum.onerilenDegisiklikler}
             </p>
           </div>

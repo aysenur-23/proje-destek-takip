@@ -134,6 +134,19 @@ export interface ProjeOnerisi {
   oncelikliDuzeltmeler: string[];
 }
 
+// ─── Kullanıcı & Auth ────────────────────────────────────────────────────────
+
+export type Plan = "ucretsiz" | "premium";
+
+export interface Kullanici {
+  uid: string;
+  email: string;
+  ad: string;
+  plan: Plan;
+  olusturmaTarihi: string;
+  premiumBitisTarihi?: string;
+}
+
 // ─── API Request/Response ────────────────────────────────────────────────────
 
 export interface AIFiltreRequest {

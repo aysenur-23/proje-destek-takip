@@ -1,7 +1,6 @@
 import { NextRequest } from "next/server";
 import { anthropic, MODEL, PROJE_ASISTANI_SISTEM_MESAJI } from "@/lib/anthropic";
 import type { ProjeAsistaniRequest, DestekProgrami } from "@/types";
-import { prisma } from "@/lib/db";
 
 // Destek programlarına özgü değerlendirme kriterleri
 const DESTEK_KRITERLERI: Record<string, string> = {
@@ -43,17 +42,12 @@ export async function POST(req: NextRequest) {
     return new Response(JSON.stringify({ error: "Geçersiz istek" }), { status: 400 });
   }
 
-  // Destek bilgilerini getir
+  // Destek bilgilerini statik veriden getir
   let destekBilgisi = "";
-  try {
-    const d = await prisma.destekProgrami.findUnique({ where: { slug: hedefDestekSlug } });
-    if (d) {
-      destekBilgisi = `Destek: ${d.ad} (${d.kurum})\nAmaç: ${d.amac}\nMevzuat: ${d.mevzuatUrl}\nÖzel notlar: ${(d.kriterler as DestekProgrami["kriterler"]).notlar ?? ""}`;
-    }
-  } catch {
-    const { tumDestekler } = await import("@/data/destekler");
-    const d = tumDestekler.find((x) => x.slug === hedefDestekSlug);
-    if (d) destekBilgisi = `Destek: ${d.ad} (${d.kurum})\nAmaç: ${d.amac}`;
+  const { tumDestekler } = await import("@/data/destekler");
+  const d = tumDestekler.find((x) => x.slug === hedefDestekSlug);
+  if (d) {
+    destekBilgisi = `Destek: ${d.ad} (${d.kurum})\nAmaç: ${d.amac}\nMevzuat: ${d.mevzuatUrl}\nÖzel notlar: ${(d.kriterler as DestekProgrami["kriterler"]).notlar ?? ""}`;
   }
 
   const kriterler = DESTEK_KRITERLERI[hedefDestekSlug] ?? DESTEK_KRITERLERI.default;

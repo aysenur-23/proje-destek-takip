@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { anthropic, MODEL, FILTRE_SISTEM_MESAJI } from "@/lib/anthropic";
-import type { AIFiltreRequest, AIFiltreSonucu, DestekProgrami } from "@/types";
-import { prisma } from "@/lib/db";
+import type { AIFiltreRequest, AIFiltreSonucu } from "@/types";
+import { tumDestekler } from "@/data/destekler";
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,27 +11,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Geçersiz istek" }, { status: 400 });
     }
 
-    // İlgili destekleri getir
-    let destekler: DestekProgrami[] = [];
-    try {
-      const dbDestekler = await prisma.destekProgrami.findMany({
-        where: { slug: { in: destekSluglar } },
-      });
-      destekler = dbDestekler.map((d) => ({
-        slug: d.slug, ad: d.ad, kurum: d.kurum,
-        kategori: d.kategori as DestekProgrami["kategori"],
-        tur: d.tur as DestekProgrami["tur"],
-        aciklama: d.aciklama, amac: d.amac,
-        butceUstSinir: d.butceUstSinir ?? undefined,
-        hibeOrani: d.hibeOrani ?? undefined,
-        aktif: d.aktif, mevzuatUrl: d.mevzuatUrl,
-        kriterler: d.kriterler as DestekProgrami["kriterler"],
-        etiketler: d.etiketler, oncelik: d.oncelik,
-      }));
-    } catch {
-      const { tumDestekler } = await import("@/data/destekler");
-      destekler = tumDestekler.filter((d) => destekSluglar.includes(d.slug));
-    }
+    const destekler = tumDestekler.filter((d) => destekSluglar.includes(d.slug));
 
     const firmaMetni = `
 Firma: ${firma.ad}
