@@ -35,8 +35,7 @@ export async function aiFiltrele(
       {
         type: "text",
         text: FILTRE_SISTEM_MESAJI,
-        // @ts-expect-error cache_control Anthropic SDK extended type
-        cache_control: { type: "ephemeral" },
+        cache_control: { type: "ephemeral" } as { type: "ephemeral" },
       },
     ],
     messages: [

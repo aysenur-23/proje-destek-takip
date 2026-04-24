@@ -88,8 +88,7 @@ ${kriterler}
           {
             type: "text",
             text: sistemMesaji,
-            // @ts-expect-error SDK extended type
-            cache_control: { type: "ephemeral" },
+            cache_control: { type: "ephemeral" } as { type: "ephemeral" },
           },
         ],
         messages: [

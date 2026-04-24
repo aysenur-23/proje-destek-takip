@@ -71,7 +71,6 @@ export const sgkDestekleri: DestekProgrami[] = [
     etiketler: ["engelli", "eski hükümlü", "sgk", "prim desteği", "istihdam"],
     oncelik: 2,
     kriterler: {
-      engellıCalisanVarMi: false,
       notlar: "İşveren engelli veya eski hükümlü işe alırsa prim desteğinden faydalanır.",
     },
   },
