@@ -1,0 +1,15 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "regions": ["fra1"],
+  "env": {
+    "ANTHROPIC_API_KEY": "@anthropic-api-key",
+    "KT_MERCHANT_ID": "@kt-merchant-id",
+    "KT_CUSTOMER_ID": "@kt-customer-id",
+    "KT_USERNAME": "@kt-username",
+    "KT_PASSWORD": "@kt-password",
+    "NEXT_PUBLIC_APP_URL": "@app-url"
+  }
+}
