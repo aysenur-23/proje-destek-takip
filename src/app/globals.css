@@ -19,7 +19,6 @@
     --ring: 221 83% 53%;
     --radius: 0.75rem;
 
-    /* Brand */
     --brand-50: #eff6ff;
     --brand-100: #dbeafe;
     --brand-500: #3b82f6;
@@ -27,27 +26,23 @@
     --brand-700: #1d4ed8;
     --brand-900: #1e3a8a;
 
-    /* Premium */
     --premium-500: #8b5cf6;
     --premium-600: #7c3aed;
     --premium-700: #6d28d9;
 
-    /* Success */
     --success-50: #ecfdf5;
     --success-500: #10b981;
     --success-600: #059669;
 
-    /* Warning */
     --warning-50: #fffbeb;
     --warning-500: #f59e0b;
 
-    /* Neutral */
     --neutral-50: #f8fafc;
     --neutral-900: #0f172a;
   }
 
   * {
-    @apply border-border;
+    border-color: hsl(var(--border));
     box-sizing: border-box;
   }
 
@@ -62,7 +57,6 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 
-  /* Input base class */
   .input {
     @apply w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl bg-white
       focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400
@@ -73,7 +67,6 @@
     @apply border-slate-300;
   }
 
-  /* Select */
   select.input {
     @apply cursor-pointer appearance-none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
@@ -82,7 +75,6 @@
     padding-right: 36px;
   }
 
-  /* Scrollbar */
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { @apply bg-slate-200 rounded-full; }
@@ -90,15 +82,22 @@
 }
 
 @layer components {
-  /* Buttons */
-  .btn {
+  /* Base button styles (inline, not @apply-ed from another class) */
+  .btn-sm {
     @apply inline-flex items-center justify-center gap-2 font-semibold rounded-xl
       transition-all duration-200 cursor-pointer select-none disabled:opacity-50
-      disabled:cursor-not-allowed active:scale-[0.98];
+      disabled:cursor-not-allowed active:scale-[0.98] px-4 py-2 text-sm;
   }
-  .btn-sm { @apply btn px-4 py-2 text-sm; }
-  .btn-md { @apply btn px-5 py-2.5 text-sm; }
-  .btn-lg { @apply btn px-6 py-3 text-base; }
+  .btn-md {
+    @apply inline-flex items-center justify-center gap-2 font-semibold rounded-xl
+      transition-all duration-200 cursor-pointer select-none disabled:opacity-50
+      disabled:cursor-not-allowed active:scale-[0.98] px-5 py-2.5 text-sm;
+  }
+  .btn-lg {
+    @apply inline-flex items-center justify-center gap-2 font-semibold rounded-xl
+      transition-all duration-200 cursor-pointer select-none disabled:opacity-50
+      disabled:cursor-not-allowed active:scale-[0.98] px-6 py-3 text-base;
+  }
 
   .btn-primary { @apply bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-600/20; }
   .btn-secondary { @apply bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 hover:border-slate-300 shadow-sm; }
@@ -106,48 +105,41 @@
   .btn-premium { @apply bg-violet-600 hover:bg-violet-700 text-white shadow-sm shadow-violet-600/20; }
   .btn-danger { @apply bg-red-600 hover:bg-red-700 text-white shadow-sm; }
 
-  /* Cards */
   .card {
     @apply bg-white rounded-2xl border border-slate-200/80 shadow-sm shadow-slate-900/5;
   }
   .card-hover {
-    @apply card hover:border-blue-200 hover:shadow-md hover:shadow-blue-900/5 transition-all duration-200;
+    @apply bg-white rounded-2xl border border-slate-200/80 shadow-sm shadow-slate-900/5
+      hover:border-blue-200 hover:shadow-md hover:shadow-blue-900/5 transition-all duration-200;
   }
 
-  /* Badges */
   .badge {
     @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold;
   }
 
-  /* Section */
   .section { @apply py-16 sm:py-20; }
   .container { @apply max-w-7xl mx-auto px-4 sm:px-6; }
 
-  /* Gradient text */
   .gradient-text {
     @apply bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent;
   }
 
-  /* Glass effect */
   .glass {
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     background: rgba(255, 255, 255, 0.8);
   }
 
-  /* Skeleton loader */
   .skeleton {
     @apply bg-slate-200 rounded-lg animate-pulse;
   }
 
-  /* Premium glow */
   .premium-glow {
     box-shadow: 0 0 30px rgba(139, 92, 246, 0.15);
   }
 }
 
 @layer utilities {
-  /* Animations */
   .animate-fade-in {
     animation: fadeIn 0.4s ease-out;
   }
