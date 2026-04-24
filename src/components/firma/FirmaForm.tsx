@@ -7,6 +7,19 @@ import { SIRKET_TURU_ADI } from "@/lib/utils";
 import { Building2, BarChart2, Settings2, MapPin, ArrowRight, ArrowLeft, Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+const TR_ILLER = [
+  "Adana", "Adıyaman", "Afyonkarahisar", "Ağrı", "Amasya", "Ankara", "Antalya", "Artvin",
+  "Aydın", "Balıkesir", "Bilecik", "Bingöl", "Bitlis", "Bolu", "Burdur", "Bursa",
+  "Çanakkale", "Çankırı", "Çorum", "Denizli", "Diyarbakır", "Edirne", "Elazığ", "Erzincan",
+  "Erzurum", "Eskişehir", "Gaziantep", "Giresun", "Gümüşhane", "Hakkari", "Hatay", "Isparta",
+  "İçel (Mersin)", "İstanbul", "İzmir", "Kars", "Kastamonu", "Kayseri", "Kırklareli",
+  "Kırşehir", "Kocaeli", "Konya", "Kütahya", "Malatya", "Manisa", "Kahramanmaraş", "Mardin",
+  "Muğla", "Muş", "Nevşehir", "Niğde", "Ordu", "Rize", "Sakarya", "Samsun", "Siirt",
+  "Sinop", "Sivas", "Tekirdağ", "Tokat", "Trabzon", "Tunceli", "Şanlıurfa", "Uşak",
+  "Van", "Yozgat", "Zonguldak", "Aksaray", "Bayburt", "Karaman", "Kırıkkale", "Batman",
+  "Şırnak", "Bartın", "Ardahan", "Iğdır", "Yalova", "Karabük", "Kilis", "Osmaniye", "Düzce",
+];
+
 const ORTAK_DESTEKLER = [
   { slug: "tubitak-1507", ad: "TÜBİTAK 1507 KOBİ Ar-Ge" },
   { slug: "tubitak-1511", ad: "TÜBİTAK 1511 Öncelikli Ar-Ge" },
@@ -334,13 +347,16 @@ export function FirmaForm() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <FormAlan etiket="İl" zorunlu>
-                <input
-                  type="text"
+                <select
                   className="input"
                   value={firma.il}
                   onChange={(e) => guncelle("il", e.target.value)}
-                  placeholder="İstanbul"
-                />
+                >
+                  <option value="">— İl seçin —</option>
+                  {TR_ILLER.map((il) => (
+                    <option key={il} value={il}>{il}</option>
+                  ))}
+                </select>
               </FormAlan>
               <FormAlan etiket="İlçe" aciklama="opsiyonel">
                 <input
