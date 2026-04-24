@@ -23,6 +23,7 @@ import {
   ChevronDown,
   ChevronUp,
   ArrowRight,
+  RotateCcw,
 } from "lucide-react";
 import { AIFiltreleWidget } from "./AIFiltreleWidget";
 import Link from "next/link";
@@ -92,6 +93,15 @@ export function DesteklerSayfasiClient({ destekler }: { destekler: DestekProgram
   const uygunSayisi = sonuclar.filter((s) => s.uygunMu).length;
   const aiGereklSayisi = sonuclar.filter((s) => s.aiYorumGerekli).length;
 
+  const filtreAktifMi =
+    filtreler.kategoriler.length > 0 ||
+    filtreler.sadecUygun ||
+    filtreler.aramaMetni.length > 0;
+
+  function filtreleriSifirla() {
+    setFiltreler({ kategoriler: [], sadecAktif: true, sadecUygun: false, aramaMetni: "" });
+  }
+
   function kategoriToggle(kat: DestekKategori) {
     setFiltreler((f) => ({
       ...f,
@@ -106,9 +116,20 @@ export function DesteklerSayfasiClient({ destekler }: { destekler: DestekProgram
       {/* ── Sol panel: Filtreler ── */}
       <aside className="w-full lg:w-60 shrink-0">
         <div className="card p-4 sticky top-20">
-          <div className="mb-4 flex items-center gap-2">
-            <Filter size={14} className="text-slate-400" />
-            <h2 className="text-sm font-semibold text-slate-800">Filtreler</h2>
+          <div className="mb-4 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Filter size={14} className="text-slate-400" />
+              <h2 className="text-sm font-semibold text-slate-800">Filtreler</h2>
+            </div>
+            {filtreAktifMi && (
+              <button
+                onClick={filtreleriSifirla}
+                className="flex items-center gap-1 text-[11px] text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                <RotateCcw size={11} />
+                Sıfırla
+              </button>
+            )}
           </div>
 
           {/* Firma durumu */}
@@ -210,10 +231,27 @@ export function DesteklerSayfasiClient({ destekler }: { destekler: DestekProgram
           />
         )}
 
+        {firma && (
+          <div className="mb-4 grid grid-cols-3 gap-2">
+            <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-center">
+              <div className="text-lg font-bold text-emerald-700">{uygunSayisi}</div>
+              <div className="text-[10px] text-emerald-600 font-medium">Uygun</div>
+            </div>
+            <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-center">
+              <div className="text-lg font-bold text-amber-600">{aiGereklSayisi}</div>
+              <div className="text-[10px] text-amber-600 font-medium">Sınırda</div>
+            </div>
+            <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-center">
+              <div className="text-lg font-bold text-slate-500">{sonuclar.length - uygunSayisi - aiGereklSayisi}</div>
+              <div className="text-[10px] text-slate-400 font-medium">Uygun Değil</div>
+            </div>
+          </div>
+        )}
+
         <div className="mb-4 flex items-center justify-between">
           <span className="text-sm text-slate-500">
             <span className="font-semibold text-slate-800">{filtrelenmisSonuclar.length}</span>{" "}
-            program listeleniyor
+            program{filtreAktifMi && " (filtreli)"}
           </span>
           {!firma && (
             <Link href="/firma" className="btn-sm btn-primary text-xs gap-1.5">

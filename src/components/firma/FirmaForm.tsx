@@ -4,8 +4,24 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { FirmaProfili, SirketTuru } from "@/types";
 import { SIRKET_TURU_ADI } from "@/lib/utils";
-import { Building2, BarChart2, Settings2, MapPin, ArrowRight, ArrowLeft, Check } from "lucide-react";
+import { Building2, BarChart2, Settings2, MapPin, ArrowRight, ArrowLeft, Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+const ORTAK_DESTEKLER = [
+  { slug: "tubitak-1507", ad: "TÜBİTAK 1507 KOBİ Ar-Ge" },
+  { slug: "tubitak-1511", ad: "TÜBİTAK 1511 Öncelikli Ar-Ge" },
+  { slug: "tubitak-1512-bigg", ad: "TÜBİTAK 1512 BİGG" },
+  { slug: "kosgeb-girisimcilik", ad: "KOSGEB Girişimcilik" },
+  { slug: "kosgeb-arge-inovasyon", ad: "KOSGEB Ar-Ge & İnovasyon" },
+  { slug: "kosgeb-dijital-donusum", ad: "KOSGEB Dijital Dönüşüm" },
+  { slug: "kosgeb-ihracat", ad: "KOSGEB İhracat" },
+  { slug: "kosgeb-isletme-gelistirme", ad: "KOSGEB İşletme Geliştirme" },
+  { slug: "tkdk-ipard3-tedbir41", ad: "TKDK IPARD III Tedbir 4.1" },
+  { slug: "tkdk-ipard3-tedbir42", ad: "TKDK IPARD III Tedbir 4.2" },
+  { slug: "sanayi-arge-merkezi", ad: "Ar-Ge Merkezi (5746)" },
+  { slug: "ticaret-turquality", ad: "TURQUALITY" },
+  { slug: "ticaret-e-ihracat", ad: "E-İhracat Desteği" },
+];
 
 const ADIMLAR = [
   { etiket: "Temel Bilgiler", ikon: Building2 },
@@ -275,22 +291,41 @@ export function FirmaForm() {
                 </div>
               </label>
             ))}
-            <FormAlan etiket="Daha önce aldığınız destekler" aciklama="Program sluglarını virgülle ayırın (opsiyonel)">
-              <input
-                type="text"
-                className="input"
-                value={firma.alinanDestekler.join(", ")}
-                onChange={(e) =>
-                  guncelle(
-                    "alinanDestekler",
-                    e.target.value
-                      .split(",")
-                      .map((s) => s.trim())
-                      .filter(Boolean),
-                  )
-                }
-                placeholder="Örn: kosgeb-girisimcilik, tubitak-1507"
-              />
+            <FormAlan etiket="Daha önce aldığınız destekler" aciklama="opsiyonel — tekrar başvuru engelini kontrol eder">
+              <div className="rounded-xl border border-slate-200 overflow-hidden">
+                <div className="max-h-40 overflow-y-auto divide-y divide-slate-100">
+                  {ORTAK_DESTEKLER.map((d) => {
+                    const secili = firma.alinanDestekler.includes(d.slug);
+                    return (
+                      <label
+                        key={d.slug}
+                        className={cn(
+                          "flex items-center gap-3 px-3 py-2 cursor-pointer transition-colors text-sm",
+                          secili ? "bg-blue-50" : "hover:bg-slate-50",
+                        )}
+                      >
+                        <input
+                          type="checkbox"
+                          className="h-3.5 w-3.5 rounded border-slate-300 text-blue-600"
+                          checked={secili}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              guncelle("alinanDestekler", [...firma.alinanDestekler, d.slug]);
+                            } else {
+                              guncelle("alinanDestekler", firma.alinanDestekler.filter((s) => s !== d.slug));
+                            }
+                          }}
+                        />
+                        <span className={secili ? "text-blue-700 font-medium" : "text-slate-600"}>{d.ad}</span>
+                        {secili && <X size={11} className="ml-auto text-blue-400 shrink-0" />}
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+              {firma.alinanDestekler.length > 0 && (
+                <p className="mt-1 text-xs text-blue-600">{firma.alinanDestekler.length} destek seçildi</p>
+              )}
             </FormAlan>
           </div>
         )}
