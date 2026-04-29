@@ -30,7 +30,7 @@ model FirmaProfili {
   ilce                 String?
   kadinGirisimci       Boolean  @default(false)
   gencGirisimci        Boolean  @default(false)
-  engellıCalisanVarMi  Boolean  @default(false)
+  engelliCalisanVarMi  Boolean  @default(false)
   alinanDestekler      String[]
   notlar               String?  @db.Text
 
