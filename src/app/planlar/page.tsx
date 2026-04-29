@@ -1,56 +1,28 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CheckCircle2, Crown, Zap, Shield } from "lucide-react";
+import { CheckCircle2, Crown, Zap, Shield, X, ChevronDown } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Planlar & Fiyatlandırma — Destek Takip",
   description: "Ücretsiz filtreleme veya AI destekli Premium analiz. İhtiyacınıza göre seçin.",
 };
 
-const planlar = [
-  {
-    ad: "Ücretsiz",
-    fiyat: "₺0",
-    periyot: "her zaman",
-    aciklama: "Temel filtreleme için yeterli",
-    ozellikler: [
-      "40+ destek programı",
-      "Kural tabanlı anlık filtreleme",
-      "Uygunluk skoru ve gerekçeleri",
-      "Program detay sayfaları",
-      "Resmi kurum bağlantıları",
-    ],
-    olmayan: ["AI sınır analizi", "Proje Yazım Asistanı"],
-    cta: "Ücretsiz Başla",
-    href: "/firma",
-    vurgu: false,
-    ikon: Shield,
-  },
-  {
-    ad: "Premium",
-    fiyat: "₺299",
-    periyot: "/ ay",
-    aciklama: "AI destekli tam analiz",
-    ozellikler: [
-      "Tüm ücretsiz özellikler",
-      "AI sınır programı analizi",
-      "Proje Yazım Asistanı (Modül 1)",
-      "Bölüm bazlı rapor önerileri",
-      "Öncelikli destek güncellemeleri",
-      "E-posta bildirim servisi",
-    ],
-    olmayan: [],
-    cta: "Premium'a Geç",
-    href: "/odeme",
-    vurgu: true,
-    ikon: Crown,
-  },
+const karsilastirma = [
+  { ozellik: "Destek program sayısı", ucretsiz: "40+", premium: "40+" },
+  { ozellik: "Kural tabanlı filtreleme", ucretsiz: true, premium: true },
+  { ozellik: "Uygunluk skoru & gerekçe", ucretsiz: true, premium: true },
+  { ozellik: "Program detay sayfaları", ucretsiz: true, premium: true },
+  { ozellik: "Resmi kurum bağlantıları", ucretsiz: true, premium: true },
+  { ozellik: "AI sınır programı analizi", ucretsiz: false, premium: true },
+  { ozellik: "Proje Yazım Asistanı", ucretsiz: false, premium: true },
+  { ozellik: "Bölüm bazlı rapor önerileri", ucretsiz: false, premium: true },
+  { ozellik: "Öncelikli güncellemeler", ucretsiz: false, premium: true },
 ];
 
 const sss = [
   {
     soru: "Premium'u iptal edebilir miyim?",
-    cevap: "Evet, istediğiniz zaman iptal edebilirsiniz. Ödeme dönemi sonuna kadar erişim devam eder.",
+    cevap: "Evet, istediğiniz zaman iptal edebilirsiniz. Ödeme dönemi sonuna kadar erişim devam eder, ek ücret alınmaz.",
   },
   {
     soru: "Ücretsiz plan kalıcı mı?",
@@ -58,121 +30,207 @@ const sss = [
   },
   {
     soru: "Hangi ödeme yöntemlerini kabul ediyorsunuz?",
-    cevap: "Kuveyt Türk Sanal POS üzerinden kredi kartı ve banka kartı ile ödeme yapabilirsiniz.",
+    cevap: "Kuveyt Türk Sanal POS üzerinden kredi kartı ve banka kartı ile 3D Secure güvencesiyle ödeme yapabilirsiniz.",
   },
   {
     soru: "AI özellikleri ne kadar doğru?",
     cevap: "AI analizleri destek mevzuatına ve değerlendirme kriterlerine dayalı önerir; resmi başvuru için kurumun güncel mevzuatını kontrol edin.",
   },
+  {
+    soru: "Firma bilgilerimi paylaşmak zorunda mıyım?",
+    cevap: "Hayır. Firma bilgileri yalnızca tarayıcınızda saklanır, sunucuya iletilmez. Hesap açmadan da kullanabilirsiniz.",
+  },
 ];
 
 export default function PlanlarSayfasi() {
   return (
-    <div className="bg-slate-50 min-h-screen">
+    <div className="min-h-screen bg-slate-50">
       {/* Hero */}
-      <div className="container py-16 text-center">
-        <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-4 py-1.5 text-sm text-blue-700">
-          <Zap size={13} />
-          Basit, şeffaf fiyatlandırma
+      <div className="border-b border-slate-200 bg-white">
+        <div className="container py-14 text-center">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-4 py-1.5 text-sm font-medium text-blue-700">
+            <Zap size={13} />
+            Basit, şeffaf fiyatlandırma
+          </div>
+          <h1 className="mb-4 text-4xl font-bold text-slate-900 tracking-tight">
+            İhtiyacınıza Uygun Planı Seçin
+          </h1>
+          <p className="mx-auto max-w-lg text-lg text-slate-500 leading-relaxed">
+            Temel filtreleme tamamen ücretsiz. AI özelliklerine ihtiyaç duyduğunuzda
+            aylık ₺299 ile premium&apos;a geçin.
+          </p>
         </div>
-        <h1 className="mb-4 text-4xl font-bold text-slate-900">
-          İhtiyacınıza Uygun Planı Seçin
-        </h1>
-        <p className="mx-auto max-w-xl text-lg text-slate-500">
-          Temel filtreleme tamamen ücretsiz. AI özelliklerine ihtiyaç duyduğunuzda
-          aylık ₺299 ile premium'a geçin.
-        </p>
       </div>
 
-      {/* Planlar */}
-      <div className="container pb-16">
-        <div className="mx-auto grid max-w-3xl gap-6 sm:grid-cols-2">
-          {planlar.map((plan) => {
-            const Ikon = plan.ikon;
-            return (
-              <div
-                key={plan.ad}
-                className={`relative rounded-2xl p-8 ${
-                  plan.vurgu
-                    ? "bg-gradient-to-br from-slate-900 to-slate-800 text-white ring-2 ring-violet-500 shadow-xl shadow-slate-900/20"
-                    : "card"
-                }`}
-              >
-                {plan.vurgu && (
-                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-violet-600 px-4 py-1 text-xs font-semibold text-white shadow">
-                      <Crown size={10} className="fill-current" />
-                      Önerilen
-                    </span>
-                  </div>
-                )}
+      {/* Plan kartları */}
+      <div className="container py-10">
+        <div className="mx-auto grid max-w-3xl gap-5 sm:grid-cols-2">
+          {/* Ücretsiz */}
+          <div className="card p-7 flex flex-col">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 mb-4">
+              <Shield size={18} className="text-slate-600" />
+            </div>
+            <h2 className="text-xl font-bold text-slate-900 mb-1">Ücretsiz</h2>
+            <p className="text-sm text-slate-500 mb-4">Temel filtreleme için yeterli</p>
+            <div className="flex items-baseline gap-1 mb-6">
+              <span className="text-4xl font-bold text-slate-900 tracking-tight">₺0</span>
+              <span className="text-sm text-slate-400">/ her zaman</span>
+            </div>
 
-                <div className="mb-5">
-                  <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-xl ${plan.vurgu ? "bg-violet-600" : "bg-slate-100"}`}>
-                    <Ikon size={18} className={plan.vurgu ? "text-white" : "text-slate-600"} />
-                  </div>
-                  <h2 className={`text-xl font-bold ${plan.vurgu ? "text-white" : "text-slate-900"}`}>
-                    {plan.ad}
-                  </h2>
-                  <p className={`mt-0.5 text-sm ${plan.vurgu ? "text-slate-400" : "text-slate-500"}`}>
-                    {plan.aciklama}
-                  </p>
-                  <div className="mt-3 flex items-baseline gap-1">
-                    <span className={`text-4xl font-bold ${plan.vurgu ? "text-white" : "text-slate-900"}`}>
-                      {plan.fiyat}
-                    </span>
-                    <span className={`text-sm ${plan.vurgu ? "text-slate-400" : "text-slate-500"}`}>
-                      {plan.periyot}
-                    </span>
-                  </div>
-                </div>
+            <ul className="space-y-2.5 mb-8 flex-1">
+              {[
+                "40+ destek programı",
+                "Kural tabanlı anlık filtreleme",
+                "Uygunluk skoru ve gerekçeleri",
+                "Program detay sayfaları",
+                "Resmi kurum bağlantıları",
+              ].map((oz) => (
+                <li key={oz} className="flex items-start gap-2 text-sm">
+                  <CheckCircle2 size={15} className="mt-0.5 shrink-0 text-emerald-500" />
+                  <span className="text-slate-600">{oz}</span>
+                </li>
+              ))}
+              {["AI sınır analizi", "Proje Yazım Asistanı"].map((oz) => (
+                <li key={oz} className="flex items-start gap-2 text-sm opacity-40">
+                  <X size={15} className="mt-0.5 shrink-0 text-slate-400" />
+                  <span className="text-slate-500">{oz}</span>
+                </li>
+              ))}
+            </ul>
 
-                <ul className="mb-8 space-y-2.5">
-                  {plan.ozellikler.map((oz) => (
-                    <li key={oz} className="flex items-start gap-2 text-sm">
-                      <CheckCircle2
-                        size={15}
-                        className={`mt-0.5 shrink-0 ${plan.vurgu ? "text-violet-400" : "text-emerald-500"}`}
-                      />
-                      <span className={plan.vurgu ? "text-slate-300" : "text-slate-600"}>{oz}</span>
-                    </li>
-                  ))}
-                  {plan.olmayan.map((oz) => (
-                    <li key={oz} className="flex items-start gap-2 text-sm opacity-40">
-                      <span className="mt-0.5 shrink-0 text-slate-400">✕</span>
-                      <span className={plan.vurgu ? "text-slate-400" : "text-slate-400"}>{oz}</span>
-                    </li>
-                  ))}
-                </ul>
+            <Link
+              href="/firma"
+              className="block w-full rounded-xl py-2.5 text-center text-sm font-semibold bg-slate-100 text-slate-800 hover:bg-slate-200 transition-colors"
+            >
+              Ücretsiz Başla
+            </Link>
+          </div>
 
-                <Link
-                  href={plan.href}
-                  className={`block w-full rounded-xl py-2.5 text-center text-sm font-semibold transition-all ${
-                    plan.vurgu
-                      ? "bg-violet-600 text-white hover:bg-violet-500 shadow shadow-violet-600/30"
-                      : "bg-slate-100 text-slate-800 hover:bg-slate-200"
-                  }`}
-                >
-                  {plan.cta}
-                </Link>
-              </div>
-            );
-          })}
+          {/* Premium */}
+          <div className="relative rounded-2xl p-7 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white ring-2 ring-violet-500/80 shadow-2xl shadow-slate-900/30 flex flex-col">
+            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-violet-600 to-violet-500 px-4 py-1 text-xs font-semibold text-white shadow-md shadow-violet-600/30">
+                <Crown size={10} className="fill-current" />
+                Önerilen
+              </span>
+            </div>
+
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-600 mb-4">
+              <Crown size={18} className="text-white" />
+            </div>
+            <h2 className="text-xl font-bold text-white mb-1">Premium</h2>
+            <p className="text-sm text-slate-400 mb-4">AI destekli tam analiz</p>
+            <div className="flex items-baseline gap-1 mb-6">
+              <span className="text-4xl font-bold text-white tracking-tight">₺299</span>
+              <span className="text-sm text-slate-400">/ ay</span>
+            </div>
+
+            <ul className="space-y-2.5 mb-8 flex-1">
+              {[
+                "Tüm ücretsiz özellikler",
+                "AI sınır programı analizi",
+                "Proje Yazım Asistanı (Modül 1)",
+                "Bölüm bazlı rapor önerileri",
+                "Öncelikli destek güncellemeleri",
+                "E-posta bildirim servisi",
+              ].map((oz) => (
+                <li key={oz} className="flex items-start gap-2 text-sm">
+                  <CheckCircle2 size={15} className="mt-0.5 shrink-0 text-violet-400" />
+                  <span className="text-slate-300">{oz}</span>
+                </li>
+              ))}
+            </ul>
+
+            <Link
+              href="/odeme"
+              className="block w-full rounded-xl py-2.5 text-center text-sm font-semibold bg-violet-600 text-white hover:bg-violet-500 shadow-lg shadow-violet-600/30 hover:shadow-violet-500/40 transition-all"
+            >
+              Premium&apos;a Geç
+            </Link>
+
+            <p className="mt-2.5 text-center text-[10px] text-slate-500">
+              İstediğiniz zaman iptal edin · 3D Secure ödeme
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Karşılaştırma tablosu */}
+      <div className="container pb-10">
+        <div className="mx-auto max-w-3xl">
+          <h2 className="text-lg font-bold text-slate-900 mb-4 px-1">Özellik Karşılaştırması</h2>
+          <div className="card overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-100 bg-slate-50">
+                  <th className="text-left px-5 py-3 font-semibold text-slate-600 text-xs uppercase tracking-wide">
+                    Özellik
+                  </th>
+                  <th className="px-5 py-3 text-center font-semibold text-slate-600 text-xs uppercase tracking-wide w-24">
+                    Ücretsiz
+                  </th>
+                  <th className="px-5 py-3 text-center font-semibold text-violet-600 text-xs uppercase tracking-wide w-24">
+                    Premium
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {karsilastirma.map((row, i) => (
+                  <tr
+                    key={row.ozellik}
+                    className={`border-b border-slate-50 last:border-0 ${i % 2 === 0 ? "" : "bg-slate-50/50"}`}
+                  >
+                    <td className="px-5 py-3 text-slate-700">{row.ozellik}</td>
+                    <td className="px-5 py-3 text-center">
+                      {typeof row.ucretsiz === "boolean" ? (
+                        row.ucretsiz ? (
+                          <CheckCircle2 size={16} className="text-emerald-500 mx-auto" />
+                        ) : (
+                          <X size={16} className="text-slate-300 mx-auto" />
+                        )
+                      ) : (
+                        <span className="text-xs font-semibold text-slate-600">{row.ucretsiz}</span>
+                      )}
+                    </td>
+                    <td className="px-5 py-3 text-center">
+                      {typeof row.premium === "boolean" ? (
+                        row.premium ? (
+                          <CheckCircle2 size={16} className="text-violet-500 mx-auto" />
+                        ) : (
+                          <X size={16} className="text-slate-300 mx-auto" />
+                        )
+                      ) : (
+                        <span className="text-xs font-semibold text-violet-600">{row.premium}</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
       {/* SSS */}
       <div className="border-t border-slate-200 bg-white">
-        <div className="container py-16 max-w-2xl">
-          <h2 className="mb-8 text-center text-2xl font-bold text-slate-900">
+        <div className="container py-14 max-w-2xl">
+          <h2 className="mb-8 text-center text-2xl font-bold text-slate-900 tracking-tight">
             Sık Sorulan Sorular
           </h2>
-          <div className="space-y-4">
+          <div className="space-y-3">
             {sss.map((item) => (
-              <div key={item.soru} className="card p-5">
-                <h3 className="mb-2 font-semibold text-slate-900">{item.soru}</h3>
-                <p className="text-sm text-slate-500 leading-relaxed">{item.cevap}</p>
-              </div>
+              <details key={item.soru} className="card group overflow-hidden">
+                <summary className="flex cursor-pointer items-center justify-between p-5 font-semibold text-slate-900 hover:bg-slate-50 transition-colors list-none">
+                  <span className="text-sm">{item.soru}</span>
+                  <ChevronDown
+                    size={16}
+                    className="text-slate-400 shrink-0 transition-transform duration-200 group-open:rotate-180"
+                  />
+                </summary>
+                <div className="border-t border-slate-100 px-5 pb-5 pt-3">
+                  <p className="text-sm text-slate-500 leading-relaxed">{item.cevap}</p>
+                </div>
+              </details>
             ))}
           </div>
         </div>
