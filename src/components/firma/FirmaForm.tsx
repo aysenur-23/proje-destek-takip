@@ -1,10 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import type { FirmaProfili, SirketTuru } from "@/types";
 import { SIRKET_TURU_ADI } from "@/lib/utils";
-import { Building2, BarChart2, Settings2, MapPin, ArrowRight, ArrowLeft, Check, X } from "lucide-react";
+import {
+  Building2,
+  BarChart2,
+  Settings2,
+  MapPin,
+  ArrowRight,
+  ArrowLeft,
+  Check,
+  X,
+  Info,
+  Users,
+  TrendingUp,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const TR_ILLER = [
@@ -37,10 +49,10 @@ const ORTAK_DESTEKLER = [
 ];
 
 const ADIMLAR = [
-  { etiket: "Temel Bilgiler", ikon: Building2 },
-  { etiket: "Sektör & Ölçek", ikon: BarChart2 },
-  { etiket: "Özellikler", ikon: Settings2 },
-  { etiket: "Konum", ikon: MapPin },
+  { etiket: "Temel Bilgiler", ikon: Building2, aciklama: "Firmanızın temel kimlik bilgileri" },
+  { etiket: "Sektör & Ölçek", ikon: BarChart2, aciklama: "Faaliyet alanı ve büyüklük kriterleri" },
+  { etiket: "Özellikler", ikon: Settings2, aciklama: "Uygunluk skorunu etkileyen özellikler" },
+  { etiket: "Konum", ikon: MapPin, aciklama: "Coğrafi konum ve ek notlar" },
 ] as const;
 
 const BOSLUK_FIRMA: FirmaProfili = {
@@ -72,6 +84,28 @@ function localdenYukle(): FirmaProfili {
   }
 }
 
+function kobiSinifi(calisan: number, ciro: number): { sinif: string; renk: string; aciklama: string } {
+  const ciroM = ciro / 1_000_000;
+  if (calisan <= 10 && ciroM <= 3) {
+    return { sinif: "Mikro KOBİ", renk: "emerald", aciklama: "≤10 kişi · ≤3M TL" };
+  }
+  if (calisan <= 50 && ciroM <= 25) {
+    return { sinif: "Küçük KOBİ", renk: "blue", aciklama: "≤50 kişi · ≤25M TL" };
+  }
+  if (calisan <= 250 && ciroM <= 125) {
+    return { sinif: "Orta KOBİ", renk: "violet", aciklama: "≤250 kişi · ≤125M TL" };
+  }
+  return { sinif: "Büyük İşletme", renk: "slate", aciklama: ">250 kişi veya >125M TL" };
+}
+
+function adimTamamMi(adim: number, firma: FirmaProfili): boolean {
+  if (adim === 0) return firma.ad.trim().length > 0;
+  if (adim === 1) return firma.sektorAdi.trim().length > 0 && firma.calısanSayisi > 0;
+  if (adim === 2) return true;
+  if (adim === 3) return firma.il.trim().length > 0;
+  return false;
+}
+
 export function FirmaForm() {
   const router = useRouter();
   const [adim, setAdim] = useState(0);
@@ -90,44 +124,88 @@ export function FirmaForm() {
   const geri = () => setAdim((a) => Math.max(a - 1, 0));
   const sonAdim = adim === ADIMLAR.length - 1;
 
+  const mevcutAdimTamam = adimTamamMi(adim, firma);
+
+  const kobi = useMemo(
+    () => kobiSinifi(firma.calısanSayisi, firma.yillikCiro),
+    [firma.calısanSayisi, firma.yillikCiro],
+  );
+
+  const kobiRenkHaritasi: Record<string, { bg: string; text: string; border: string }> = {
+    emerald: { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200" },
+    blue: { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200" },
+    violet: { bg: "bg-violet-50", text: "text-violet-700", border: "border-violet-200" },
+    slate: { bg: "bg-slate-50", text: "text-slate-600", border: "border-slate-200" },
+  };
+  const kobiRenk = kobiRenkHaritasi[kobi.renk];
+
+  const tamamlananAdimlar = ADIMLAR.map((_, i) => adimTamamMi(i, firma));
+  const genelIlerleme = Math.round(
+    (tamamlananAdimlar.filter(Boolean).length / ADIMLAR.length) * 100,
+  );
+
   return (
     <div className="card overflow-hidden">
       {/* ── Adım göstergesi ── */}
-      <div className="border-b border-slate-100 bg-slate-50 px-6 py-4">
-        <div className="flex items-center justify-between">
+      <div className="border-b border-slate-100 bg-slate-50/70 px-6 py-4">
+        {/* İlerleme yüzdesi */}
+        <div className="mb-4 flex items-center justify-between text-xs text-slate-500">
+          <span className="font-medium">Profil tamamlama</span>
+          <span className="font-bold text-blue-600">{genelIlerleme}%</span>
+        </div>
+        <div className="mb-4 h-1 w-full rounded-full bg-slate-200 overflow-hidden">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-700"
+            style={{ width: `${genelIlerleme}%` }}
+          />
+        </div>
+
+        {/* Adım göstergesi */}
+        <div className="flex items-center">
           {ADIMLAR.map((a, i) => {
             const Ikon = a.ikon;
-            const tamamlandi = i < adim;
+            const tamamlandi = i < adim || (i === adim && adimTamamMi(i, firma));
             const aktif = i === adim;
+            const gelecek = i > adim;
             return (
               <div key={a.etiket} className="flex items-center flex-1">
-                <div className="flex flex-col items-center gap-1">
+                <button
+                  onClick={() => i < adim && setAdim(i)}
+                  disabled={i >= adim}
+                  className={cn("flex flex-col items-center gap-1 group", i < adim && "cursor-pointer")}
+                >
                   <div
                     className={cn(
-                      "flex h-9 w-9 items-center justify-center rounded-full border-2 transition-all duration-300",
-                      tamamlandi
-                        ? "border-blue-600 bg-blue-600 text-white"
+                      "flex h-8 w-8 items-center justify-center rounded-full border-2 transition-all duration-300",
+                      tamamlandi && !aktif
+                        ? "border-blue-600 bg-blue-600 text-white hover:bg-blue-700 hover:border-blue-700"
                         : aktif
-                          ? "border-blue-600 bg-white text-blue-600"
-                          : "border-slate-200 bg-white text-slate-400",
+                          ? "border-blue-600 bg-white text-blue-600 shadow-sm shadow-blue-600/20"
+                          : gelecek
+                            ? "border-slate-200 bg-white text-slate-300"
+                            : "border-slate-200 bg-white text-slate-400",
                     )}
                   >
-                    {tamamlandi ? <Check size={15} strokeWidth={2.5} /> : <Ikon size={15} />}
+                    {tamamlandi && !aktif ? (
+                      <Check size={13} strokeWidth={2.5} />
+                    ) : (
+                      <Ikon size={13} />
+                    )}
                   </div>
                   <span
                     className={cn(
-                      "hidden sm:block text-[11px] font-medium whitespace-nowrap",
-                      aktif ? "text-blue-600" : tamamlandi ? "text-slate-600" : "text-slate-400",
+                      "hidden sm:block text-[10px] font-semibold whitespace-nowrap",
+                      aktif ? "text-blue-600" : tamamlandi ? "text-slate-500" : "text-slate-300",
                     )}
                   >
                     {a.etiket}
                   </span>
-                </div>
+                </button>
                 {i < ADIMLAR.length - 1 && (
                   <div
                     className={cn(
-                      "flex-1 mx-2 h-0.5 rounded transition-all duration-500",
-                      i < adim ? "bg-blue-600" : "bg-slate-200",
+                      "flex-1 mx-1.5 h-0.5 rounded-full transition-all duration-500",
+                      i < adim ? "bg-blue-500" : "bg-slate-200",
                     )}
                   />
                 )}
@@ -138,19 +216,13 @@ export function FirmaForm() {
       </div>
 
       {/* ── Form içeriği ── */}
-      <div className="px-6 py-6">
+      <div className="px-6 py-6 animate-fade-in" key={adim}>
         <div className="mb-6">
-          <h2 className="text-lg font-semibold text-slate-900">
-            {ADIMLAR[adim].etiket}
-          </h2>
-          <p className="text-sm text-slate-500 mt-0.5">
-            {adim === 0 && "Firmanızın temel kimlik bilgileri"}
-            {adim === 1 && "Faaliyet alanı ve büyüklük kriterleri"}
-            {adim === 2 && "Uygunluk skorunu etkileyen özellikler"}
-            {adim === 3 && "Coğrafi konum ve ek notlar"}
-          </p>
+          <h2 className="text-lg font-semibold text-slate-900">{ADIMLAR[adim].etiket}</h2>
+          <p className="text-sm text-slate-500 mt-0.5">{ADIMLAR[adim].aciklama}</p>
         </div>
 
+        {/* ── Adım 0: Temel Bilgiler ── */}
         {adim === 0 && (
           <div className="space-y-4">
             <FormAlan etiket="Firma Adı" zorunlu>
@@ -160,6 +232,7 @@ export function FirmaForm() {
                 value={firma.ad}
                 onChange={(e) => guncelle("ad", e.target.value)}
                 placeholder="Örn: Teknoloji A.Ş."
+                autoFocus
               />
             </FormAlan>
             <FormAlan etiket="Şirket Türü" zorunlu>
@@ -191,12 +264,14 @@ export function FirmaForm() {
                   value={firma.vergiNo ?? ""}
                   onChange={(e) => guncelle("vergiNo", e.target.value)}
                   placeholder="10 haneli"
+                  maxLength={10}
                 />
               </FormAlan>
             </div>
           </div>
         )}
 
+        {/* ── Adım 1: Sektör & Ölçek ── */}
         {adim === 1 && (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
@@ -206,7 +281,7 @@ export function FirmaForm() {
                   className="input"
                   value={firma.sektorKodu}
                   onChange={(e) => guncelle("sektorKodu", e.target.value)}
-                  placeholder="62.01"
+                  placeholder="Örn: 62.01"
                 />
               </FormAlan>
               <FormAlan etiket="Sektör Açıklaması" zorunlu>
@@ -221,32 +296,76 @@ export function FirmaForm() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <FormAlan etiket="Çalışan Sayısı" zorunlu>
-                <input
-                  type="number"
-                  className="input"
-                  value={firma.calısanSayisi}
-                  min={1}
-                  onChange={(e) => guncelle("calısanSayisi", parseInt(e.target.value))}
-                />
+                <div className="relative">
+                  <Users size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="number"
+                    className="input pl-9"
+                    value={firma.calısanSayisi}
+                    min={1}
+                    onChange={(e) => guncelle("calısanSayisi", parseInt(e.target.value) || 1)}
+                  />
+                </div>
               </FormAlan>
               <FormAlan etiket="Yıllık Ciro (TL)" zorunlu>
-                <input
-                  type="number"
-                  className="input"
-                  value={firma.yillikCiro}
-                  min={0}
-                  step={100000}
-                  onChange={(e) => guncelle("yillikCiro", parseFloat(e.target.value))}
-                  placeholder="0"
-                />
+                <div className="relative">
+                  <TrendingUp size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="number"
+                    className="input pl-9"
+                    value={firma.yillikCiro}
+                    min={0}
+                    step={100000}
+                    onChange={(e) => guncelle("yillikCiro", parseFloat(e.target.value) || 0)}
+                    placeholder="0"
+                  />
+                </div>
               </FormAlan>
             </div>
-            <div className="rounded-xl bg-blue-50 border border-blue-100 p-3 text-xs text-blue-700">
-              KOBİ sınırları: mikro ≤10 kişi / ≤3M TL · küçük ≤50 / ≤25M · orta ≤250 / ≤125M
+
+            {/* KOBİ sınıf göstergesi */}
+            <div className={cn("rounded-xl border p-3", kobiRenk.bg, kobiRenk.border)}>
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-1.5">
+                  <Info size={12} className={kobiRenk.text} />
+                  <span className={cn("text-xs font-bold", kobiRenk.text)}>
+                    {kobi.sinif}
+                  </span>
+                </div>
+                <span className={cn("text-[10px] font-medium", kobiRenk.text)}>
+                  {kobi.aciklama}
+                </span>
+              </div>
+              <div className="grid grid-cols-3 gap-1 mt-2">
+                {[
+                  { label: "Mikro", max: 10, maxC: 3 },
+                  { label: "Küçük", max: 50, maxC: 25 },
+                  { label: "Orta", max: 250, maxC: 125 },
+                ].map((s) => {
+                  const aktif = kobi.sinif.toLowerCase().includes(s.label.toLowerCase());
+                  return (
+                    <div
+                      key={s.label}
+                      className={cn(
+                        "rounded-lg border px-2 py-1.5 text-center transition-all",
+                        aktif
+                          ? `${kobiRenk.bg} ${kobiRenk.border} ring-1 ring-current`
+                          : "border-transparent bg-white/50",
+                      )}
+                    >
+                      <div className={cn("text-[10px] font-bold", aktif ? kobiRenk.text : "text-slate-400")}>
+                        {s.label}
+                      </div>
+                      <div className="text-[9px] text-slate-400">≤{s.max} kişi</div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         )}
 
+        {/* ── Adım 2: Özellikler ── */}
         {adim === 2 && (
           <div className="space-y-2">
             {[
@@ -254,59 +373,88 @@ export function FirmaForm() {
                 alan: "argeYapiyorMu",
                 etiket: "Ar-Ge faaliyeti yürütüyoruz",
                 aciklama: "TÜBİTAK/Sanayi Bakanlığı onaylı merkez veya aktif Ar-Ge projeleri",
+                puan: "+15 puan",
               },
               {
                 alan: "teknokentteMi",
                 etiket: "Teknokent / TGB kiracısıyız",
                 aciklama: "Teknoloji Geliştirme Bölgesi üyeliği",
+                puan: "+10 puan",
               },
               {
                 alan: "osbdeMi",
                 etiket: "OSB'de faaliyet gösteriyoruz",
                 aciklama: "Organize Sanayi Bölgesi",
+                puan: "+10 puan",
               },
               {
                 alan: "ihracatYapiyorMu",
                 etiket: "İhracat yapıyoruz",
                 aciklama: "Düzenli yurt dışı satış",
+                puan: "+10 puan",
               },
               {
                 alan: "kadinGirisimci",
                 etiket: "Kadın girişimci / ortak",
                 aciklama: "Yönetim veya ortaklık yapısında kadın girişimci",
+                puan: "Öncelik",
               },
               {
                 alan: "gencGirisimci",
                 etiket: "Genç girişimci (≤35 yaş)",
                 aciklama: "Kurucu veya yöneticilerin 35 yaş ve altı olması",
+                puan: "Öncelik",
               },
               {
                 alan: "engellıCalisanVarMi",
                 etiket: "Engelli çalışanımız var",
                 aciklama: "Kayıtlı engelli personel istihdamı",
+                puan: "SGK desteği",
               },
-            ].map((item) => (
-              <label
-                key={item.alan}
-                className="flex items-start gap-3 p-3.5 border border-slate-200 rounded-xl cursor-pointer hover:border-blue-300 hover:bg-blue-50/50 transition-all"
-              >
-                <div className="relative mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center">
-                  <input
-                    type="checkbox"
-                    className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500/20"
-                    checked={firma[item.alan as keyof FirmaProfili] as boolean}
-                    onChange={(e) => guncelle(item.alan as keyof FirmaProfili, e.target.checked)}
-                  />
-                </div>
-                <div>
-                  <div className="text-sm font-medium text-slate-800">{item.etiket}</div>
-                  <div className="text-xs text-slate-400 mt-0.5">{item.aciklama}</div>
-                </div>
-              </label>
-            ))}
-            <FormAlan etiket="Daha önce aldığınız destekler" aciklama="opsiyonel — tekrar başvuru engelini kontrol eder">
+            ].map((item) => {
+              const secili = firma[item.alan as keyof FirmaProfili] as boolean;
+              return (
+                <label
+                  key={item.alan}
+                  className={cn(
+                    "flex items-start gap-3 p-3.5 border rounded-xl cursor-pointer transition-all duration-150",
+                    secili
+                      ? "border-blue-300 bg-blue-50/70 shadow-sm"
+                      : "border-slate-200 hover:border-blue-200 hover:bg-blue-50/30",
+                  )}
+                >
+                  <div className="relative mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center">
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500/20"
+                      checked={secili}
+                      onChange={(e) => guncelle(item.alan as keyof FirmaProfili, e.target.checked)}
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="text-sm font-medium text-slate-800">{item.etiket}</div>
+                      <span className={cn(
+                        "shrink-0 text-[9px] font-bold rounded-full px-1.5 py-0.5 border",
+                        secili
+                          ? "bg-blue-100 text-blue-700 border-blue-200"
+                          : "bg-slate-50 text-slate-400 border-slate-100",
+                      )}>
+                        {item.puan}
+                      </span>
+                    </div>
+                    <div className="text-xs text-slate-400 mt-0.5 leading-relaxed">{item.aciklama}</div>
+                  </div>
+                </label>
+              );
+            })}
+
+            <FormAlan
+              etiket="Daha önce aldığınız destekler"
+              aciklama="Tekrar başvuru engelini kontrol eder (opsiyonel)"
+            >
               <div className="rounded-xl border border-slate-200 overflow-hidden">
-                <div className="max-h-40 overflow-y-auto divide-y divide-slate-100">
+                <div className="max-h-44 overflow-y-auto divide-y divide-slate-50">
                   {ORTAK_DESTEKLER.map((d) => {
                     const secili = firma.alinanDestekler.includes(d.slug);
                     return (
@@ -319,30 +467,39 @@ export function FirmaForm() {
                       >
                         <input
                           type="checkbox"
-                          className="h-3.5 w-3.5 rounded border-slate-300 text-blue-600"
+                          className="h-3.5 w-3.5 rounded border-slate-300 text-blue-600 shrink-0"
                           checked={secili}
                           onChange={(e) => {
                             if (e.target.checked) {
                               guncelle("alinanDestekler", [...firma.alinanDestekler, d.slug]);
                             } else {
-                              guncelle("alinanDestekler", firma.alinanDestekler.filter((s) => s !== d.slug));
+                              guncelle(
+                                "alinanDestekler",
+                                firma.alinanDestekler.filter((s) => s !== d.slug),
+                              );
                             }
                           }}
                         />
-                        <span className={secili ? "text-blue-700 font-medium" : "text-slate-600"}>{d.ad}</span>
-                        {secili && <X size={11} className="ml-auto text-blue-400 shrink-0" />}
+                        <span className={cn("flex-1 text-xs", secili ? "text-blue-700 font-medium" : "text-slate-600")}>
+                          {d.ad}
+                        </span>
+                        {secili && <X size={10} className="text-blue-400 shrink-0" />}
                       </label>
                     );
                   })}
                 </div>
               </div>
               {firma.alinanDestekler.length > 0 && (
-                <p className="mt-1 text-xs text-blue-600">{firma.alinanDestekler.length} destek seçildi</p>
+                <p className="mt-1.5 flex items-center gap-1 text-xs text-blue-600">
+                  <Check size={11} />
+                  {firma.alinanDestekler.length} destek seçildi — tekrar başvuru kısıtları uygulanacak
+                </p>
               )}
             </FormAlan>
           </div>
         )}
 
+        {/* ── Adım 3: Konum ── */}
         {adim === 3 && (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
@@ -368,40 +525,60 @@ export function FirmaForm() {
                 />
               </FormAlan>
             </div>
-            <FormAlan etiket="Ek Notlar" aciklama="Yakın planlar, özel durumlar — AI analizi için kullanılır (opsiyonel)">
+            <FormAlan
+              etiket="Ek Notlar"
+              aciklama="Yakın planlar, özel durumlar — AI analizi için kullanılır (opsiyonel)"
+            >
               <textarea
-                className="input min-h-[90px] resize-none"
+                className="input min-h-[100px] resize-none leading-relaxed"
                 value={firma.notlar ?? ""}
                 onChange={(e) => guncelle("notlar", e.target.value)}
-                placeholder="Örn: 2025'te Ar-Ge merkezi başvurusu planlıyoruz..."
+                placeholder="Örn: 2025'te Ar-Ge merkezi başvurusu planlıyoruz, ihracat oranımız %30..."
               />
             </FormAlan>
-            <div className="rounded-xl bg-slate-50 border border-slate-200 p-3 text-xs text-slate-500 flex items-start gap-2">
-              <span className="text-blue-500 mt-0.5">ℹ</span>
-              Bilgileriniz yalnızca tarayıcınızda saklanır, sunucuya iletilmez.
+            <div className="rounded-xl bg-slate-50 border border-slate-200 p-3 text-xs text-slate-500 flex items-start gap-2.5">
+              <Info size={13} className="text-blue-400 shrink-0 mt-0.5" />
+              <span>
+                Bilgileriniz <strong>yalnızca tarayıcınızda</strong> saklanır, sunucuya iletilmez.
+                Dilediğiniz zaman silebilirsiniz.
+              </span>
             </div>
           </div>
         )}
 
         {/* ── Navigasyon ── */}
-        <div className="flex gap-3 mt-8 pt-6 border-t border-slate-100">
+        <div className="flex gap-3 mt-8 pt-5 border-t border-slate-100">
           {adim > 0 ? (
             <button onClick={geri} className="btn-md btn-secondary gap-2">
-              <ArrowLeft size={16} />
+              <ArrowLeft size={15} />
               Geri
             </button>
           ) : (
             <div />
           )}
           {!sonAdim ? (
-            <button onClick={ileri} className="btn-md btn-primary ml-auto gap-2">
+            <button
+              onClick={ileri}
+              disabled={!mevcutAdimTamam}
+              className={cn(
+                "btn-md ml-auto gap-2 transition-all",
+                mevcutAdimTamam ? "btn-primary" : "bg-slate-100 text-slate-400 cursor-not-allowed",
+              )}
+            >
               Devam
-              <ArrowRight size={16} />
+              <ArrowRight size={15} />
             </button>
           ) : (
-            <button onClick={kaydet} className="btn-md btn-primary ml-auto gap-2">
+            <button
+              onClick={kaydet}
+              disabled={!firma.il}
+              className={cn(
+                "btn-md ml-auto gap-2 transition-all",
+                firma.il ? "btn-primary" : "bg-slate-100 text-slate-400 cursor-not-allowed",
+              )}
+            >
               Destekleri Göster
-              <ArrowRight size={16} />
+              <ArrowRight size={15} />
             </button>
           )}
         </div>
@@ -423,15 +600,20 @@ function FormAlan({
 }) {
   return (
     <div>
-      <label className="mb-1.5 block text-sm font-medium text-slate-700">
-        {etiket}
-        {zorunlu && <span className="ml-1 text-red-500">*</span>}
+      <label className="mb-1.5 flex items-center gap-1.5 text-sm font-medium text-slate-700">
+        <span>{etiket}</span>
+        {zorunlu && <span className="text-red-400 text-xs">*</span>}
         {aciklama && !zorunlu && (
-          <span className="ml-1.5 text-xs font-normal text-slate-400">({aciklama})</span>
+          <span className="text-xs font-normal text-slate-400">— {aciklama}</span>
         )}
       </label>
       {children}
-      {aciklama && zorunlu && <p className="mt-1 text-xs text-slate-400">{aciklama}</p>}
+      {aciklama && zorunlu && (
+        <p className="mt-1 text-[11px] text-slate-400 flex items-center gap-1">
+          <Info size={10} />
+          {aciklama}
+        </p>
+      )}
     </div>
   );
 }
