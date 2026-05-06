@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import type {
   DestekProgrami,
   FirmaProfili,
@@ -29,6 +30,7 @@ import {
   TrendingUp,
   ArrowUpDown,
   Info,
+  type LucideIcon,
 } from "lucide-react";
 import { AIFiltreleWidget } from "./AIFiltreleWidget";
 import Link from "next/link";
@@ -47,25 +49,106 @@ function localdenFirma(): FirmaProfili | null {
   }
 }
 
-export function DesteklerSayfasiClient({ destekler }: { destekler: DestekProgrami[] }) {
+type DestekOverride = {
+  aktif?: boolean;
+  basvuruBaslangic?: string;
+  basvuruBitis?: string;
+  sonGuncelleme?: string;
+};
+
+async function overrideleriYukle(): Promise<Record<string, DestekOverride>> {
+  // Önce Firestore dene
+  try {
+    const { db, firebaseReady } = await import("@/lib/firebase");
+    if (firebaseReady && db) {
+      const { collection, getDocs } = await import("firebase/firestore");
+      const snap = await getDocs(collection(db, "destekOverrides"));
+      const sonuc: Record<string, DestekOverride> = {};
+      snap.forEach((doc) => { sonuc[doc.id] = doc.data() as DestekOverride; });
+      return sonuc;
+    }
+  } catch (err) {
+    console.warn("Firestore override yükleme başarısız, localStorage'a düşülüyor:", err);
+  }
+  // Fallback: localStorage
+  try {
+    const local = localStorage.getItem("destekOverrides");
+    return local ? JSON.parse(local) : {};
+  } catch {
+    return {};
+  }
+}
+
+function overrideUygula(destekler: DestekProgrami[], overrides: Record<string, DestekOverride>): DestekProgrami[] {
+  return destekler.map((d) => {
+    const ov = overrides[d.slug];
+    if (!ov) return d;
+    return {
+      ...d,
+      aktif: ov.aktif ?? d.aktif,
+      basvuruBaslangic: ov.basvuruBaslangic ?? d.basvuruBaslangic,
+      basvuruBitis: ov.basvuruBitis ?? d.basvuruBitis,
+      sonGuncelleme: ov.sonGuncelleme ?? d.sonGuncelleme,
+    };
+  });
+}
+
+interface DesteklerProps {
+  destekler: DestekProgrami[];
+  baslangicKategoriler?: string[];
+  baslangicArama?: string;
+  baslangicSadecUygun?: boolean;
+}
+
+export function DesteklerSayfasiClient({
+  destekler,
+  baslangicKategoriler = [],
+  baslangicArama = "",
+  baslangicSadecUygun = false,
+}: DesteklerProps) {
+  const router = useRouter();
+  const pathname = usePathname();
   const [firma, setFirma] = useState<FirmaProfili | null>(null);
+  const [uygulanmisDestekler, setUygulanmisDestekler] = useState<DestekProgrami[]>(destekler);
   const [filtreler, setFiltreler] = useState<FiltreSecenekleri>({
-    kategoriler: [],
+    kategoriler: baslangicKategoriler as DestekKategori[],
     sadecAktif: true,
-    sadecUygun: false,
-    aramaMetni: "",
+    sadecUygun: baslangicSadecUygun,
+    aramaMetni: baslangicArama,
   });
   const [aiAcik, setAiAcik] = useState(false);
   const [siralama, setSiralama] = useState<SiralamaTuru>("varsayilan");
   const [mobilFiltreler, setMobilFiltreler] = useState(false);
 
+  // Filtre değişince URL'i güncelle (paylaşılabilir link)
+  const urlGuncelle = useCallback(
+    (yeniFiltreler: FiltreSecenekleri) => {
+      const params = new URLSearchParams();
+      if (yeniFiltreler.kategoriler.length > 0)
+        params.set("kategori", yeniFiltreler.kategoriler.join(","));
+      if (yeniFiltreler.aramaMetni)
+        params.set("ara", yeniFiltreler.aramaMetni);
+      if (yeniFiltreler.sadecUygun)
+        params.set("uygun", "1");
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    },
+    [router, pathname],
+  );
+
   useEffect(() => {
     setFirma(localdenFirma());
-  }, []);
+    // Admin override'larını yükle ve uygula
+    overrideleriYukle().then((overrides) => {
+      if (Object.keys(overrides).length > 0) {
+        setUygulanmisDestekler(overrideUygula(destekler, overrides));
+      }
+    });
+  }, [destekler]);
 
   const sonuclar = useMemo<FiltreSonucu[]>(() => {
     if (!firma) {
-      return destekler
+      return uygulanmisDestekler
         .filter((d) => d.aktif)
         .map((d) => ({
           destek: d,
@@ -75,8 +158,8 @@ export function DesteklerSayfasiClient({ destekler }: { destekler: DestekProgram
           bonus: [],
         }));
     }
-    return tumDestekleriFiltrele(firma, destekler);
-  }, [firma, destekler]);
+    return tumDestekleriFiltrele(firma, uygulanmisDestekler);
+  }, [firma, uygulanmisDestekler]);
 
   const filtrelenmisSonuclar = useMemo(() => {
     let liste = sonuclar.filter((s) => {
@@ -128,17 +211,29 @@ export function DesteklerSayfasiClient({ destekler }: { destekler: DestekProgram
     filtreler.aramaMetni.length > 0;
 
   function filtreleriSifirla() {
-    setFiltreler({ kategoriler: [], sadecAktif: true, sadecUygun: false, aramaMetni: "" });
+    const sifir: FiltreSecenekleri = { kategoriler: [], sadecAktif: true, sadecUygun: false, aramaMetni: "" };
+    setFiltreler(sifir);
     setSiralama("varsayilan");
+    urlGuncelle(sifir);
+  }
+
+  function filtreGuncelle(guncelleme: Partial<FiltreSecenekleri>) {
+    setFiltreler((f) => {
+      const yeni = { ...f, ...guncelleme };
+      urlGuncelle(yeni);
+      return yeni;
+    });
   }
 
   function kategoriToggle(kat: DestekKategori) {
-    setFiltreler((f) => ({
-      ...f,
-      kategoriler: f.kategoriler.includes(kat)
+    setFiltreler((f) => {
+      const yeniKategoriler = f.kategoriler.includes(kat)
         ? f.kategoriler.filter((k) => k !== kat)
-        : [...f.kategoriler, kat],
-    }));
+        : [...f.kategoriler, kat];
+      const yeni = { ...f, kategoriler: yeniKategoriler };
+      urlGuncelle(yeni);
+      return yeni;
+    });
   }
 
   const filtrePaneli = (
@@ -177,20 +272,22 @@ export function DesteklerSayfasiClient({ destekler }: { destekler: DestekProgram
 
       {/* Arama */}
       <div className="relative">
-        <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
+        <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true" />
         <input
-          type="text"
+          type="search"
           className="input pl-8 text-xs py-2 text-slate-800"
           placeholder="Program veya kurum ara..."
+          aria-label="Destek programı ara"
           value={filtreler.aramaMetni}
-          onChange={(e) => setFiltreler((f) => ({ ...f, aramaMetni: e.target.value }))}
+          onChange={(e) => filtreGuncelle({ aramaMetni: e.target.value })}
         />
         {filtreler.aramaMetni && (
           <button
-            onClick={() => setFiltreler((f) => ({ ...f, aramaMetni: "" }))}
+            onClick={() => filtreGuncelle({ aramaMetni: "" })}
+            aria-label="Aramayı temizle"
             className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors"
           >
-            <XCircle size={13} />
+            <XCircle size={13} aria-hidden="true" />
           </button>
         )}
       </div>
@@ -202,7 +299,7 @@ export function DesteklerSayfasiClient({ destekler }: { destekler: DestekProgram
             type="checkbox"
             className="h-3.5 w-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500/20"
             checked={filtreler.sadecUygun}
-            onChange={(e) => setFiltreler((f) => ({ ...f, sadecUygun: e.target.checked }))}
+            onChange={(e) => filtreGuncelle({ sadecUygun: e.target.checked })}
           />
           <div className="flex-1">
             <span className="text-xs font-medium text-slate-700">Sadece uygun olanlar</span>
@@ -211,6 +308,31 @@ export function DesteklerSayfasiClient({ destekler }: { destekler: DestekProgram
             )}
           </div>
         </label>
+      )}
+
+      {/* Aktif filtre özeti */}
+      {filtreAktifMi && (
+        <div className="flex flex-wrap gap-1.5">
+          {filtreler.kategoriler.map((kat) => (
+            <button
+              key={kat}
+              onClick={() => kategoriToggle(kat)}
+              className="inline-flex items-center gap-1 rounded-full bg-blue-100 border border-blue-200 px-2.5 py-0.5 text-[10px] font-semibold text-blue-700 hover:bg-blue-200 transition-colors"
+            >
+              {KATEGORI_ADI[kat]}
+              <span className="text-blue-400">×</span>
+            </button>
+          ))}
+          {filtreler.sadecUygun && (
+            <button
+              onClick={() => filtreGuncelle({ sadecUygun: false })}
+              className="inline-flex items-center gap-1 rounded-full bg-emerald-100 border border-emerald-200 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-700 hover:bg-emerald-200 transition-colors"
+            >
+              Sadece Uygun
+              <span className="text-emerald-400">×</span>
+            </button>
+          )}
+        </div>
       )}
 
       {/* Kategori filtresi */}
@@ -228,6 +350,8 @@ export function DesteklerSayfasiClient({ destekler }: { destekler: DestekProgram
               <button
                 key={kat}
                 onClick={() => kategoriToggle(kat)}
+                aria-pressed={aktif}
+                aria-label={`${KATEGORI_ADI[kat]} kategorisini ${aktif ? "kaldır" : "filtrele"} (${sayi} program)`}
                 className={cn(
                   "flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs transition-all duration-150",
                   aktif
@@ -279,6 +403,8 @@ export function DesteklerSayfasiClient({ destekler }: { destekler: DestekProgram
       <div className="lg:hidden flex items-center gap-2">
         <button
           onClick={() => setMobilFiltreler(!mobilFiltreler)}
+          aria-expanded={mobilFiltreler}
+          aria-controls="mobil-filtre-paneli"
           className={cn(
             "flex items-center gap-2 rounded-xl border px-3.5 py-2 text-sm font-medium transition-all",
             mobilFiltreler || filtreAktifMi
@@ -286,7 +412,7 @@ export function DesteklerSayfasiClient({ destekler }: { destekler: DestekProgram
               : "border-slate-200 bg-white text-slate-700",
           )}
         >
-          <SlidersHorizontal size={14} />
+          <SlidersHorizontal size={14} aria-hidden="true" />
           Filtreler
           {filtreAktifMi && (
             <span className="flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-[9px] font-bold text-white">
@@ -307,7 +433,7 @@ export function DesteklerSayfasiClient({ destekler }: { destekler: DestekProgram
 
       {/* Mobil filtre paneli */}
       {mobilFiltreler && (
-        <div className="lg:hidden card p-4 animate-slide-up">
+        <div id="mobil-filtre-paneli" className="lg:hidden card p-4 animate-slide-up" role="region" aria-label="Filtre seçenekleri">
           {filtrePaneli}
         </div>
       )}
@@ -351,7 +477,7 @@ export function DesteklerSayfasiClient({ destekler }: { destekler: DestekProgram
         {firma && (
           <div className="mb-4 grid grid-cols-3 gap-2">
             <button
-              onClick={() => setFiltreler((f) => ({ ...f, sadecUygun: !f.sadecUygun }))}
+              onClick={() => filtreGuncelle({ sadecUygun: !filtreler.sadecUygun })}
               className={cn(
                 "rounded-xl border px-3 py-2.5 text-center transition-all group",
                 filtreler.sadecUygun
@@ -395,6 +521,7 @@ export function DesteklerSayfasiClient({ destekler }: { destekler: DestekProgram
               <select
                 value={siralama}
                 onChange={(e) => setSiralama(e.target.value as SiralamaTuru)}
+                aria-label="Sıralama seçeneği"
                 className="input py-1.5 text-xs pr-8 appearance-none cursor-pointer pl-8"
               >
                 <option value="varsayilan">Varsayılan sıra</option>
@@ -408,28 +535,24 @@ export function DesteklerSayfasiClient({ destekler }: { destekler: DestekProgram
         </div>
 
         {/* Kart listesi */}
-        <div className="space-y-2.5">
+        <div
+          className="space-y-2.5"
+          role="list"
+          aria-label={`${filtrelenmisSonuclar.length} destek programı`}
+          aria-live="polite"
+          aria-atomic="false"
+        >
           {filtrelenmisSonuclar.map((sonuc) => (
             <DestekKarti key={sonuc.destek.slug} sonuc={sonuc} firmaVarMi={!!firma} />
           ))}
 
           {filtrelenmisSonuclar.length === 0 && (
-            <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white py-20 text-center">
-              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100">
-                <Search size={28} className="text-slate-300" />
-              </div>
-              <p className="font-semibold text-slate-600 mb-1">Sonuç bulunamadı</p>
-              <p className="text-sm text-slate-400 mb-5 max-w-xs">
-                Filtre veya arama kriterlerinizi değiştirin
-              </p>
-              <button
-                onClick={filtreleriSifirla}
-                className="btn-sm btn-secondary gap-1.5 text-xs"
-              >
-                <RotateCcw size={12} />
-                Filtreleri Sıfırla
-              </button>
-            </div>
+            <BosListeDurumu
+              aramaMetni={filtreler.aramaMetni}
+              sadecUygun={filtreler.sadecUygun}
+              firmaVarMi={!!firma}
+              onSifirla={filtreleriSifirla}
+            />
           )}
         </div>
       </div>
@@ -448,7 +571,7 @@ function DestekKarti({ sonuc, firmaVarMi }: { sonuc: FiltreSonucu; firmaVarMi: b
     headerBg: string;
     border: string;
     pill: { bg: string; text: string; dot: string };
-    ikon: typeof CheckCircle2 | null;
+    ikon: LucideIcon | null;
     ikonRenk: string;
   };
 
@@ -490,21 +613,25 @@ function DestekKarti({ sonuc, firmaVarMi }: { sonuc: FiltreSonucu; firmaVarMi: b
 
   return (
     <div
+      role="listitem"
       className={cn(
-        "group relative bg-white rounded-2xl border overflow-hidden transition-all duration-200 hover:shadow-sm",
+        "group relative bg-white rounded-2xl border overflow-hidden transition-all duration-200 hover:shadow-[var(--shadow-md)] hover:-translate-y-0.5",
         durumConfig.border,
-        acik && "shadow-sm",
+        acik && "shadow-[var(--shadow-sm)]",
       )}
     >
       {/* Sol renk çizgisi */}
-      <div className={cn("absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl", durumConfig.leftBar)} />
+      <div className={cn("absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl", durumConfig.leftBar)} aria-hidden="true" />
 
       {/* Kart başlığı */}
       <div
         className="flex cursor-pointer items-start gap-3 pl-5 pr-4 py-3.5"
         onClick={() => setAcik(!acik)}
         role="button"
+        tabIndex={0}
         aria-expanded={acik}
+        aria-label={`${destek.ad} — ${acik ? "daralt" : "detayları göster"}`}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setAcik(!acik); } }}
       >
         <div className="flex-1 min-w-0">
           {/* Badge satırı */}
@@ -530,6 +657,16 @@ function DestekKarti({ sonuc, firmaVarMi }: { sonuc: FiltreSonucu; firmaVarMi: b
                 maks {paraCevir(destek.butceUstSinir)}
               </span>
             ) : null}
+            {destek.basvuruBitis && new Date(destek.basvuruBitis) < new Date() && (
+              <span className="text-[10px] font-semibold text-red-600 bg-red-50 border border-red-100 rounded-full px-1.5 py-0.5">
+                Süresi Doldu
+              </span>
+            )}
+            {!destek.aktif && (
+              <span className="text-[10px] font-semibold text-slate-400 bg-slate-100 border border-slate-200 rounded-full px-1.5 py-0.5">
+                Pasif
+              </span>
+            )}
           </div>
 
           <h3 className="text-sm font-semibold leading-snug text-slate-900 group-hover:text-blue-900 transition-colors">
@@ -538,6 +675,20 @@ function DestekKarti({ sonuc, firmaVarMi }: { sonuc: FiltreSonucu; firmaVarMi: b
 
           {!acik && (
             <p className="mt-0.5 line-clamp-1 text-xs text-slate-400">{destek.aciklama}</p>
+          )}
+          {!acik && firmaVarMi && uygunlukSkoru > 0 && (
+            <div className="mt-2 flex items-center gap-2">
+              <div className="flex-1 h-1 rounded-full bg-slate-100 overflow-hidden">
+                <div
+                  className={cn(
+                    "h-full rounded-full transition-all duration-500",
+                    uygunMu ? "bg-emerald-500" : sinirda ? "bg-amber-400" : "bg-slate-300",
+                  )}
+                  style={{ width: `${Math.max(uygunlukSkoru, 3)}%` }}
+                />
+              </div>
+              <span className="text-[10px] tabular-nums font-semibold text-slate-400">{uygunlukSkoru}%</span>
+            </div>
           )}
         </div>
 
@@ -639,6 +790,12 @@ function DestekKarti({ sonuc, firmaVarMi }: { sonuc: FiltreSonucu; firmaVarMi: b
             </div>
           )}
 
+          {destek.sonGuncelleme && (
+            <p className="mb-3 text-[10px] text-slate-400">
+              Son güncelleme: {new Date(destek.sonGuncelleme).toLocaleDateString("tr-TR")}
+            </p>
+          )}
+
           <div className="flex flex-wrap items-center gap-2 pt-1">
             <a
               href={destek.mevzuatUrl}
@@ -673,6 +830,77 @@ function DestekKarti({ sonuc, firmaVarMi }: { sonuc: FiltreSonucu; firmaVarMi: b
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function BosListeDurumu({
+  aramaMetni,
+  sadecUygun,
+  firmaVarMi,
+  onSifirla,
+}: {
+  aramaMetni: string;
+  sadecUygun: boolean;
+  firmaVarMi: boolean;
+  onSifirla: () => void;
+}) {
+  if (!firmaVarMi) {
+    return (
+      <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-amber-200 bg-amber-50/50 py-20 text-center px-6">
+        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-100">
+          <Building2 size={28} className="text-amber-400" />
+        </div>
+        <p className="font-semibold text-slate-700 mb-1">Firma profilinizi oluşturun</p>
+        <p className="text-sm text-slate-500 mb-5 max-w-xs leading-relaxed">
+          Uygunluk analizi ve kişiselleştirilmiş eşleştirme için firma bilgilerinizi girin.
+        </p>
+        <Link href="/firma" className="btn-sm btn-primary gap-1.5 text-xs">
+          <Building2 size={12} />
+          Profil Oluştur
+        </Link>
+      </div>
+    );
+  }
+
+  if (sadecUygun && !aramaMetni) {
+    return (
+      <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white py-20 text-center px-6">
+        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100">
+          <AlertCircle size={28} className="text-slate-300" />
+        </div>
+        <p className="font-semibold text-slate-600 mb-1">Şu an tam uygun program yok</p>
+        <p className="text-sm text-slate-400 mb-5 max-w-xs leading-relaxed">
+          Firma profilinizi güncelleyin veya "sınırda" programları da görmek için filtreyi kaldırın.
+        </p>
+        <div className="flex gap-2 flex-wrap justify-center">
+          <button onClick={onSifirla} className="btn-sm btn-secondary gap-1.5 text-xs">
+            <RotateCcw size={12} />
+            Tüm Programları Göster
+          </button>
+          <Link href="/firma" className="btn-sm btn-primary gap-1.5 text-xs">
+            Profili Güncelle
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white py-20 text-center px-6">
+      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100">
+        <Search size={28} className="text-slate-300" />
+      </div>
+      <p className="font-semibold text-slate-600 mb-1">
+        {aramaMetni ? `"${aramaMetni}" için sonuç yok` : "Sonuç bulunamadı"}
+      </p>
+      <p className="text-sm text-slate-400 mb-5 max-w-xs">
+        Filtre veya arama kriterlerinizi değiştirin
+      </p>
+      <button onClick={onSifirla} className="btn-sm btn-secondary gap-1.5 text-xs">
+        <RotateCcw size={12} />
+        Filtreleri Sıfırla
+      </button>
     </div>
   );
 }

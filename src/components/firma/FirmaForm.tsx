@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import type { FirmaProfili, SirketTuru } from "@/types";
+import { useAuth } from "@/contexts/AuthContext";
 import { SIRKET_TURU_ADI } from "@/lib/utils";
 import {
   Building2,
@@ -18,6 +19,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const TR_ILLER = [
   "Adana", "Adıyaman", "Afyonkarahisar", "Ağrı", "Amasya", "Ankara", "Antalya", "Artvin",
@@ -108,15 +110,48 @@ function adimTamamMi(adim: number, firma: FirmaProfili): boolean {
 
 export function FirmaForm() {
   const router = useRouter();
+  const { firebaseUser } = useAuth();
   const [adim, setAdim] = useState(0);
   const [firma, setFirma] = useState<FirmaProfili>(localdenYukle);
+  const [kaydediliyor, setKaydediliyor] = useState(false);
 
   function guncelle(alan: keyof FirmaProfili, deger: unknown) {
     setFirma((onceki) => ({ ...onceki, [alan]: deger }));
   }
 
-  function kaydet() {
-    localStorage.setItem("firmaProfili", JSON.stringify(firma));
+  async function kaydet() {
+    setKaydediliyor(true);
+
+    // 1. localStorage — kritik, hata olursa dur
+    try {
+      localStorage.setItem("firmaProfili", JSON.stringify(firma));
+    } catch (err) {
+      console.error("localStorage kayıt başarısız:", err);
+      toast.error("Yerel kayıt başarısız", { description: "Tarayıcı depolama alanı dolu olabilir." });
+      setKaydediliyor(false);
+      return;
+    }
+
+    toast.success("Firma profili kaydedildi", { description: "Uygun destekler listeleniyor…" });
+
+    // 2. Firestore — ikincil, hata yapabilir ama localStorage zaten kaydedildi
+    if (firebaseUser) {
+      try {
+        const { db } = await import("@/lib/firebase");
+        if (db) {
+          const { doc, setDoc, serverTimestamp } = await import("firebase/firestore");
+          await setDoc(doc(db, "kullanicilar", firebaseUser.uid, "profil", "firma"), {
+            ...firma,
+            guncellenmeTarihi: serverTimestamp(),
+          });
+        }
+      } catch (err) {
+        console.warn("Firestore kayıt başarısız:", err);
+        toast.error("Bulut kaydı başarısız", { description: "Yerel kayıt tamamlandı, devam ediliyor." });
+      }
+    }
+
+    setKaydediliyor(false);
     router.push("/destekler");
   }
 
@@ -150,10 +185,18 @@ export function FirmaForm() {
       <div className="border-b border-slate-100 bg-slate-50/70 px-6 py-4">
         {/* İlerleme yüzdesi */}
         <div className="mb-4 flex items-center justify-between text-xs text-slate-500">
-          <span className="font-medium">Profil tamamlama</span>
-          <span className="font-bold text-blue-600">{genelIlerleme}%</span>
+          <span className="font-medium" id="profil-ilerleme-etiket">Profil tamamlama</span>
+          <span className="font-bold text-blue-600" aria-hidden="true">{genelIlerleme}%</span>
         </div>
-        <div className="mb-4 h-1 w-full rounded-full bg-slate-200 overflow-hidden">
+        <div
+          className="mb-4 h-1 w-full rounded-full bg-slate-200 overflow-hidden"
+          role="progressbar"
+          aria-valuenow={genelIlerleme}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-labelledby="profil-ilerleme-etiket"
+          aria-valuetext={`%${genelIlerleme} tamamlandı`}
+        >
           <div
             className="h-full rounded-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-700"
             style={{ width: `${genelIlerleme}%` }}
@@ -161,17 +204,20 @@ export function FirmaForm() {
         </div>
 
         {/* Adım göstergesi */}
-        <div className="flex items-center">
+        <nav aria-label="Form adımları">
+        <ol className="flex items-center">
           {ADIMLAR.map((a, i) => {
             const Ikon = a.ikon;
             const tamamlandi = i < adim || (i === adim && adimTamamMi(i, firma));
             const aktif = i === adim;
             const gelecek = i > adim;
             return (
-              <div key={a.etiket} className="flex items-center flex-1">
+              <li key={a.etiket} className="flex items-center flex-1">
                 <button
                   onClick={() => i < adim && setAdim(i)}
                   disabled={i >= adim}
+                  aria-current={aktif ? "step" : undefined}
+                  aria-label={`${a.etiket}${tamamlandi && !aktif ? " (tamamlandı)" : aktif ? " (mevcut adım)" : " (henüz ulaşılmadı)"}`}
                   className={cn("flex flex-col items-center gap-1 group", i < adim && "cursor-pointer")}
                 >
                   <div
@@ -207,19 +253,31 @@ export function FirmaForm() {
                       "flex-1 mx-1.5 h-0.5 rounded-full transition-all duration-500",
                       i < adim ? "bg-blue-500" : "bg-slate-200",
                     )}
+                    aria-hidden="true"
                   />
                 )}
-              </div>
+              </li>
             );
           })}
-        </div>
+        </ol>
+        </nav>
       </div>
 
       {/* ── Form içeriği ── */}
-      <div className="px-6 py-6 animate-fade-in" key={adim}>
-        <div className="mb-6">
-          <h2 className="text-lg font-semibold text-slate-900">{ADIMLAR[adim].etiket}</h2>
-          <p className="text-sm text-slate-500 mt-0.5">{ADIMLAR[adim].aciklama}</p>
+      <div className="px-6 py-6 animate-fade-in" key={adim} aria-live="polite" aria-atomic="true">
+        <div className="mb-6 flex items-start gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 border border-blue-100">
+            {(() => { const Ikon = ADIMLAR[adim].ikon; return <Ikon size={18} className="text-blue-600" />; })()}
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-base font-semibold text-slate-900" id="adim-baslik">{ADIMLAR[adim].etiket}</h2>
+              <span className="text-[10px] font-semibold text-slate-400 bg-slate-100 rounded-full px-2 py-0.5">
+                {adim + 1} / {ADIMLAR.length}
+              </span>
+            </div>
+            <p className="text-sm text-slate-500 mt-0.5">{ADIMLAR[adim].aciklama}</p>
+          </div>
         </div>
 
         {/* ── Adım 0: Temel Bilgiler ── */}
@@ -549,8 +607,8 @@ export function FirmaForm() {
         {/* ── Navigasyon ── */}
         <div className="flex gap-3 mt-8 pt-5 border-t border-slate-100">
           {adim > 0 ? (
-            <button onClick={geri} className="btn-md btn-secondary gap-2">
-              <ArrowLeft size={15} />
+            <button onClick={geri} className="btn-md btn-secondary gap-2" aria-label="Önceki adıma git">
+              <ArrowLeft size={15} aria-hidden="true" />
               Geri
             </button>
           ) : (
@@ -560,25 +618,38 @@ export function FirmaForm() {
             <button
               onClick={ileri}
               disabled={!mevcutAdimTamam}
+              aria-disabled={!mevcutAdimTamam}
+              aria-label={mevcutAdimTamam ? "Sonraki adıma git" : "Bu adımı tamamlayın"}
               className={cn(
                 "btn-md ml-auto gap-2 transition-all",
                 mevcutAdimTamam ? "btn-primary" : "bg-slate-100 text-slate-400 cursor-not-allowed",
               )}
             >
               Devam
-              <ArrowRight size={15} />
+              <ArrowRight size={15} aria-hidden="true" />
             </button>
           ) : (
             <button
               onClick={kaydet}
-              disabled={!firma.il}
+              disabled={!firma.il || kaydediliyor}
+              aria-disabled={!firma.il || kaydediliyor}
+              aria-busy={kaydediliyor}
               className={cn(
                 "btn-md ml-auto gap-2 transition-all",
-                firma.il ? "btn-primary" : "bg-slate-100 text-slate-400 cursor-not-allowed",
+                firma.il && !kaydediliyor ? "btn-primary" : "bg-slate-100 text-slate-400 cursor-not-allowed",
               )}
             >
-              Destekleri Göster
-              <ArrowRight size={15} />
+              {kaydediliyor ? (
+                <>
+                  <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white" aria-hidden="true" />
+                  Kaydediliyor…
+                </>
+              ) : (
+                <>
+                  Destekleri Göster
+                  <ArrowRight size={15} aria-hidden="true" />
+                </>
+              )}
             </button>
           )}
         </div>
@@ -599,18 +670,20 @@ function FormAlan({
   children: React.ReactNode;
 }) {
   return (
-    <div>
-      <label className="mb-1.5 flex items-center gap-1.5 text-sm font-medium text-slate-700">
+    <div className="space-y-1.5">
+      <label className="flex items-center gap-1.5 text-sm font-medium text-slate-700">
         <span>{etiket}</span>
-        {zorunlu && <span className="text-red-400 text-xs">*</span>}
+        {zorunlu && (
+          <abbr title="zorunlu" className="text-red-500 no-underline text-xs">*</abbr>
+        )}
         {aciklama && !zorunlu && (
           <span className="text-xs font-normal text-slate-400">— {aciklama}</span>
         )}
       </label>
       {children}
       {aciklama && zorunlu && (
-        <p className="mt-1 text-[11px] text-slate-400 flex items-center gap-1">
-          <Info size={10} />
+        <p className="text-[11px] text-slate-400 flex items-center gap-1">
+          <Info size={10} aria-hidden="true" />
           {aciklama}
         </p>
       )}
