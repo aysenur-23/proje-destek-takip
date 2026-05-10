@@ -95,12 +95,23 @@ export async function POST(req: NextRequest) {
   let gonderilen = 0;
 
   try {
-    const adminApp = process.env.FIREBASE_ADMIN_CLIENT_EMAIL
-      ? await import("@/lib/firebase-admin").then((m) => m.adminApp)
-      : null;
-
-    if (adminApp) {
+    if (process.env.FIREBASE_PROJECT_ID) {
+      const adminMod = await import("firebase-admin/app");
       const { getFirestore } = await import("firebase-admin/firestore");
+
+      // Admin uygulamasını al (zaten initialize edilmişse tekrar etme)
+      let adminApp = adminMod.getApps()[0] ?? null;
+      if (!adminApp) {
+        const { cert } = adminMod;
+        adminApp = adminMod.initializeApp({
+          credential: cert({
+            projectId: process.env.FIREBASE_PROJECT_ID,
+            clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
+            privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+          }),
+        });
+      }
+
       const db = getFirestore(adminApp);
       const kullanicilarSnap = await db.collection("kullanicilar").get();
 

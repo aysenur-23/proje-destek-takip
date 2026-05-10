@@ -17,7 +17,12 @@ import {
   Info,
   Users,
   TrendingUp,
+  Sparkles,
+  Trophy,
+  ChevronRight,
 } from "lucide-react";
+import { tumDestekleriFiltrele } from "@/lib/filtrele";
+import { tumDestekler } from "@/data/destekler";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -108,12 +113,20 @@ function adimTamamMi(adim: number, firma: FirmaProfili): boolean {
   return false;
 }
 
+interface EslesmeSonucu {
+  toplamUygun: number;
+  kategoriler: { ad: string; sayi: number; renk: string }[];
+  toplamButce: number;
+}
+
 export function FirmaForm() {
   const router = useRouter();
   const { firebaseUser } = useAuth();
   const [adim, setAdim] = useState(0);
   const [firma, setFirma] = useState<FirmaProfili>(localdenYukle);
   const [kaydediliyor, setKaydediliyor] = useState(false);
+  const [basariGosteriliyor, setBasariGosteriliyor] = useState(false);
+  const [eslesme, setEslesme] = useState<EslesmeSonucu | null>(null);
 
   function guncelle(alan: keyof FirmaProfili, deger: unknown) {
     setFirma((onceki) => ({ ...onceki, [alan]: deger }));
@@ -132,8 +145,6 @@ export function FirmaForm() {
       return;
     }
 
-    toast.success("Firma profili kaydedildi", { description: "Uygun destekler listeleniyor…" });
-
     // 2. Firestore — ikincil, hata yapabilir ama localStorage zaten kaydedildi
     if (firebaseUser) {
       try {
@@ -147,12 +158,56 @@ export function FirmaForm() {
         }
       } catch (err) {
         console.warn("Firestore kayıt başarısız:", err);
-        toast.error("Bulut kaydı başarısız", { description: "Yerel kayıt tamamlandı, devam ediliyor." });
       }
     }
 
+    // 3. Eşleşme hesapla ve başarı ekranı göster
+    const sonuclar = tumDestekleriFiltrele(firma, tumDestekler);
+    const uygunlar = sonuclar.filter((s) => s.uygunMu);
+
+    const kategoriHaritasi: Record<string, { sayi: number; renk: string }> = {
+      TÜBİTAK: { sayi: 0, renk: "blue" },
+      KOSGEB: { sayi: 0, renk: "violet" },
+      "AB Fonları": { sayi: 0, renk: "indigo" },
+      "Ticaret Bakanlığı": { sayi: 0, renk: "emerald" },
+      SGK: { sayi: 0, renk: "teal" },
+      Teknokent: { sayi: 0, renk: "cyan" },
+      TKDK: { sayi: 0, renk: "green" },
+      "Sanayi Bakanlığı": { sayi: 0, renk: "orange" },
+      "Kalkınma Ajansı": { sayi: 0, renk: "amber" },
+      "Tarım Bakanlığı": { sayi: 0, renk: "lime" },
+    };
+
+    const kategoriEsleme: Record<string, string> = {
+      TUBITAK: "TÜBİTAK",
+      KOSGEB: "KOSGEB",
+      AB: "AB Fonları",
+      TICARET: "Ticaret Bakanlığı",
+      SGK: "SGK",
+      TEKNOKENT: "Teknokent",
+      TKDK: "TKDK",
+      SANAYI: "Sanayi Bakanlığı",
+      KALKINMA: "Kalkınma Ajansı",
+      TARIM: "Tarım Bakanlığı",
+    };
+
+    for (const s of uygunlar) {
+      const kategoriAdi = kategoriEsleme[s.destek.kategori] ?? s.destek.kategori;
+      if (kategoriHaritasi[kategoriAdi]) {
+        kategoriHaritasi[kategoriAdi].sayi++;
+      }
+    }
+
+    const toplamButce = uygunlar.reduce((acc, s) => acc + (s.destek.butceUstSinir ?? 0), 0);
+
+    const kategoriler = Object.entries(kategoriHaritasi)
+      .filter(([, v]) => v.sayi > 0)
+      .map(([ad, v]) => ({ ad, sayi: v.sayi, renk: v.renk }))
+      .sort((a, b) => b.sayi - a.sayi);
+
+    setEslesme({ toplamUygun: uygunlar.length, kategoriler, toplamButce });
     setKaydediliyor(false);
-    router.push("/destekler");
+    setBasariGosteriliyor(true);
   }
 
   const ileri = () => setAdim((a) => Math.min(a + 1, ADIMLAR.length - 1));
@@ -178,6 +233,73 @@ export function FirmaForm() {
   const genelIlerleme = Math.round(
     (tamamlananAdimlar.filter(Boolean).length / ADIMLAR.length) * 100,
   );
+
+  // ── Başarı ekranı ──────────────────────────────────────────────────────────
+  if (basariGosteriliyor && eslesme) {
+    const butceM = (eslesme.toplamButce / 1_000_000).toFixed(0);
+    return (
+      <div className="card overflow-hidden animate-fade-in">
+        <div className="px-8 py-10 text-center">
+          {/* Başarı ikonu */}
+          <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/30">
+            <Trophy size={36} className="text-white" />
+          </div>
+
+          {/* Ana mesaj */}
+          <div className="mb-1 text-4xl font-black text-slate-900 tabular-nums">
+            {eslesme.toplamUygun}
+          </div>
+          <h2 className="mb-1 text-xl font-bold text-slate-800">
+            programa uygunsunuz!
+          </h2>
+          {eslesme.toplamButce > 0 && (
+            <p className="mb-6 text-sm text-slate-500">
+              Toplam potansiyel destek bütçesi:{" "}
+              <span className="font-bold text-blue-600">₺{butceM} milyon+</span>
+            </p>
+          )}
+
+          {/* Kategori dağılımı */}
+          {eslesme.kategoriler.length > 0 && (
+            <div className="mb-7 grid grid-cols-2 gap-2 sm:grid-cols-3">
+              {eslesme.kategoriler.map((k) => (
+                <div
+                  key={k.ad}
+                  className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5 text-center"
+                >
+                  <div className="text-lg font-black text-slate-800">{k.sayi}</div>
+                  <div className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">{k.ad}</div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Aksiyon butonları */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <button
+              onClick={() => router.push("/destekler")}
+              className="btn-md btn-primary gap-2 group"
+            >
+              <Sparkles size={15} aria-hidden="true" />
+              Destekleri İncele
+              <ChevronRight size={14} className="transition-transform group-hover:translate-x-0.5" />
+            </button>
+            <button
+              onClick={() => setBasariGosteriliyor(false)}
+              className="btn-md btn-secondary gap-1.5 text-slate-500"
+            >
+              Profili Düzenle
+            </button>
+          </div>
+
+          {/* Alt not */}
+          <p className="mt-5 text-[11px] text-slate-400">
+            Profiliniz tarayıcınıza kaydedildi — tekrar giriş gerekmez.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="card overflow-hidden">

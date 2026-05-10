@@ -95,4 +95,43 @@ export const sgkDestekleri: DestekProgrami[] = [
       notlar: "Teknik mezuniyet şartı aranmaktadır; net ücret sınırı uygulanır.",
     },
   },
+  {
+    slug: "sgk-kadin-istihdam",
+    ad: "Kadın İstihdamı SGK Prim Teşviki",
+    kurum: "SGK",
+    kategori: "SGK",
+    tur: "PRIM_DESTEGI",
+    aciklama:
+      "İşsiz kadın çalışanları işe alan firmalara 24-54 ay arasında SGK işveren payı teşviki ve ücret desteği.",
+    amac: "Kadın istihdamını artırmak.",
+    hibeOrani: 100,
+    aktif: true,
+    mevzuatUrl: "https://www.sgk.gov.tr/wps/portal/sgk/tr/calisan/isverenler/tesvikler",
+    etiketler: ["kadın", "istihdam", "sgk", "prim desteği", "cinsiyet eşitliği"],
+    oncelik: 1,
+    sonGuncelleme: "2026-05-10",
+    kriterler: {
+      kadinGirisimciBonus: true,
+      notlar: "İşe alınan kadın son 6 ayda SGK'lı çalışmamış olmalı. Tüm sektörler uygun.",
+    },
+  },
+  {
+    slug: "sgk-kisa-calisma",
+    ad: "Kısa Çalışma Ödeneği",
+    kurum: "İŞKUR / SGK",
+    kategori: "SGK",
+    tur: "PRIM_DESTEGI",
+    aciklama:
+      "Genel ekonomik kriz veya zorlayıcı sebeplerle çalışma süresi azaltılan firmalarda çalışanlara ücret farkı desteği.",
+    amac: "Ekonomik zorluklarda istihdamı korumak.",
+    hibeOrani: 60,
+    aktif: true,
+    mevzuatUrl: "https://www.iskur.gov.tr/isci/kisa-calisma-odenegine-basvuru.html",
+    etiketler: ["kısa çalışma", "iskur", "ödeneği", "istihdam", "kriz"],
+    oncelik: 3,
+    sonGuncelleme: "2026-05-10",
+    kriterler: {
+      notlar: "İŞKUR uygun bulma kararı gerekli. Çalışan en az 60 gün sigortalı olmalı.",
+    },
+  },
 ];

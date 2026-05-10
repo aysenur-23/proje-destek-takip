@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { WelcomeTour } from "@/components/layout/WelcomeTour";
 import { Analytics } from "@vercel/analytics/next";
 import { Toaster } from "sonner";
 
@@ -87,6 +88,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <main id="ana-icerik" className="flex-1">{children}</main>
             <Footer />
           </div>
+          <WelcomeTour />
           <Analytics />
           <Toaster
             position="bottom-right"
