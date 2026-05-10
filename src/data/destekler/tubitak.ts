@@ -1,4 +1,4 @@
-import type { DestekProgrami } from "@/types";
+﻿import type { DestekProgrami } from "@/types";
 
 export const tubitakDestekleri: DestekProgrami[] = [
   {
@@ -18,6 +18,7 @@ export const tubitakDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.tubitak.gov.tr/tr/destekler/sanayi/ulusal-destek-programlari/icerik-1507",
     etiketler: ["ar-ge", "kobi", "teknoloji", "ürün geliştirme", "hibe"],
     oncelik: 1,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       sirketTurleri: ["AS", "LTD"],
       maxCalisan: 250,
@@ -41,6 +42,7 @@ export const tubitakDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.tubitak.gov.tr/tr/destekler/sanayi/ulusal-destek-programlari/icerik-1511",
     etiketler: ["ar-ge", "öncelikli alan", "teknoloji", "büyük ölçek"],
     oncelik: 2,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       sirketTurleri: ["AS", "LTD"],
       argeZorunlu: true,
@@ -62,6 +64,7 @@ export const tubitakDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.tubitak.gov.tr/tr/destekler/sanayi/ulusal-destek-programlari/icerik-1512",
     etiketler: ["girişimcilik", "teknoloji", "startup", "bigg", "yeni kurulan"],
     oncelik: 1,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       sirketTurleri: ["AS", "LTD", "SAHIS"],
       maxKurulusYili: 2022,
@@ -84,6 +87,7 @@ export const tubitakDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.tubitak.gov.tr/tr/destekler/sanayi/ulusal-destek-programlari/icerik-1601",
     etiketler: ["kuluçka", "hızlandırma", "ekosistem", "kapasite"],
     oncelik: 3,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       sirketTurleri: ["AS", "LTD", "DERNEK_VAKIF"],
       notlar: "Teknoloji transfer ofisi, kuluçka merkezi veya teknokent yönetici firmaları başvurabilir.",
@@ -101,6 +105,7 @@ export const tubitakDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.tubitak.gov.tr/tr/burslar/akademik/nap_burslar/2244",
     etiketler: ["doktora", "üniversite işbirliği", "ar-ge personeli", "insan kaynağı"],
     oncelik: 4,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       argeZorunlu: true,
       notlar: "Firmada en az 1 tam zamanlı Ar-Ge çalışanı bulunmalı.",
@@ -120,6 +125,7 @@ export const tubitakDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.tubitak.gov.tr/tr/destekler/sanayi/ulusal-destek-programlari/icerik-1505",
     etiketler: ["üniversite", "işbirliği", "ar-ge", "ortak proje"],
     oncelik: 3,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       argeZorunlu: false,
       notlar: "Proje yürütücüsü üniversite öğretim üyesi olmalı; firma ortak kuruluş statüsünde yer alır.",

@@ -1,0 +1,104 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ── 1. Lint + Type-check + Test ──────────────────────────────────────────────
+  quality:
+    name: Quality checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline
+
+      - name: TypeScript type-check
+        run: npm run type-check
+
+      - name: ESLint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm run test:coverage
+        env:
+          # Test ortamı için sahte değerler
+          ANTHROPIC_API_KEY: sk-ant-test-key
+          KT_MERCHANT_ID: TEST_MERCHANT
+          KT_CUSTOMER_ID: TEST_CUSTOMER
+          KT_USERNAME: TEST_USER
+          KT_PASSWORD: TEST_PASS
+          NEXT_PUBLIC_APP_URL: https://test.destektakip.com
+          NEXT_PUBLIC_FIREBASE_API_KEY: test-api-key
+          NEXT_PUBLIC_FIREBASE_PROJECT_ID: test-project
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 7
+
+  # ── 2. Build doğrulama ───────────────────────────────────────────────────────
+  build:
+    name: Build check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: quality
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline
+
+      - name: Next.js build
+        run: npm run build
+        env:
+          # Build için gerekli sahte env'ler
+          ANTHROPIC_API_KEY: sk-ant-build-placeholder
+          NEXT_PUBLIC_APP_URL: https://destektakip.com
+          NEXT_PUBLIC_FIREBASE_API_KEY: build-placeholder
+          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: build.firebaseapp.com
+          NEXT_PUBLIC_FIREBASE_PROJECT_ID: build-project
+          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: build.appspot.com
+          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "000000000000"
+          NEXT_PUBLIC_FIREBASE_APP_ID: 1:000000000000:web:000000000000000000000000
+          DATABASE_URL: postgresql://user:pass@localhost:5432/db
+          KT_MERCHANT_ID: placeholder
+          KT_CUSTOMER_ID: placeholder
+          KT_USERNAME: placeholder
+          KT_PASSWORD: placeholder
+          RESEND_API_KEY: re_placeholder
+          CRON_SECRET: placeholder-secret
+
+      - name: Check build output size
+        run: |
+          echo "=== Build size summary ==="
+          du -sh .next/static || true
+          du -sh .next/server || true

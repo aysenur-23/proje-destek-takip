@@ -1,4 +1,4 @@
-import type { DestekProgrami } from "@/types";
+﻿import type { DestekProgrami } from "@/types";
 
 export const teknokentDestekleri: DestekProgrami[] = [
   {
@@ -14,6 +14,7 @@ export const teknokentDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.resmigazete.gov.tr/eskiler/2001/07/20010706.htm",
     etiketler: ["teknokent", "vergi muafiyeti", "kurumlar vergisi", "yazılım", "ar-ge"],
     oncelik: 1,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       teknokentZorunlu: true,
       notlar: "2028 yılına kadar uzatılmış muafiyet. Yazılım geliştirme ve Ar-Ge faaliyetlerinden elde edilen gelirler muaf.",
@@ -33,6 +34,7 @@ export const teknokentDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.resmigazete.gov.tr/eskiler/2001/07/20010706.htm",
     etiketler: ["teknokent", "gelir vergisi", "stopaj", "ar-ge personeli"],
     oncelik: 1,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       teknokentZorunlu: true,
       notlar: "Lisans veya üzeri eğitim sahibi Ar-Ge personeli için %100 muafiyet. 2028'e kadar geçerli.",
@@ -51,6 +53,7 @@ export const teknokentDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.gib.gov.tr/node/89882",
     etiketler: ["kdv", "yazılım", "teknokent", "ihracat", "satış"],
     oncelik: 1,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       teknokentZorunlu: true,
       notlar: "Yazılım teslimi ve hizmetleri kapsar; donanım satışları kapsam dışı.",
@@ -70,6 +73,7 @@ export const teknokentDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.sanayi.gov.tr/hizmetler/ar-ge-ve-teknoloji/teknoloji-gelistirme-bolgeleri",
     etiketler: ["patent", "teknokent", "ar-ge", "fikri mülkiyet", "lisans"],
     oncelik: 3,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       teknokentZorunlu: true,
       argeZorunlu: true,

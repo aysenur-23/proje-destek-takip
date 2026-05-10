@@ -1,4 +1,4 @@
-import type { DestekProgrami } from "@/types";
+﻿import type { DestekProgrami } from "@/types";
 
 export const ticaretBakanligiDestekleri: DestekProgrami[] = [
   {
@@ -16,6 +16,7 @@ export const ticaretBakanligiDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.turquality.com",
     etiketler: ["marka", "ihracat", "turquality", "uluslararası", "tanıtım"],
     oncelik: 2,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       sirketTurleri: ["AS", "LTD"],
       ihracatZorunlu: true,
@@ -38,6 +39,7 @@ export const ticaretBakanligiDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.ticaret.gov.tr/ihracat/destekler/ihracat-destek-programlari",
     etiketler: ["ihracat", "yurt dışı ofis", "marka tescili", "showroom"],
     oncelik: 2,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       ihracatZorunlu: true,
       notlar: "En az 1 yıldır faaliyet gösterme şartı. İhracat sicil belgesi gerekli.",
@@ -57,6 +59,7 @@ export const ticaretBakanligiDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.ticaret.gov.tr/ihracat/destekler/ihracat-destek-programlari",
     etiketler: ["e-ticaret", "e-ihracat", "amazon", "platform", "dijital"],
     oncelik: 1,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       notlar: "Yurt dışı e-ticaret platformunda aktif satış hesabı bulunmalı.",
     },
@@ -75,6 +78,7 @@ export const ticaretBakanligiDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.ticaret.gov.tr/ihracat/destekler/ihracat-destek-programlari",
     etiketler: ["pazar araştırma", "ihracat", "ticaret heyeti", "yeni pazar"],
     oncelik: 3,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       notlar: "KOBİ statüsündeki firmalar daha yüksek destek oranından faydalanır.",
     },
@@ -93,6 +97,7 @@ export const ticaretBakanligiDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.ticaret.gov.tr/ihracat/destekler/ihracat-destek-programlari",
     etiketler: ["tasarım", "ürün", "marka", "endüstriyel tasarım"],
     oncelik: 3,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       notlar: "Tasarım merkezi veya akredite tasarım firmasıyla çalışma şartı.",
     },

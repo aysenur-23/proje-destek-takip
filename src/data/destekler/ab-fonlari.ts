@@ -1,4 +1,4 @@
-import type { DestekProgrami } from "@/types";
+﻿import type { DestekProgrami } from "@/types";
 
 export const abFonlariDestekleri: DestekProgrami[] = [
   {
@@ -16,6 +16,7 @@ export const abFonlariDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://eic.ec.europa.eu/eic-funding-opportunities/eic-accelerator_en",
     etiketler: ["ab", "horizon", "eic", "startup", "deep tech", "küresel"],
     oncelik: 2,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       sirketTurleri: ["AS", "LTD"],
       maxCalisan: 500,
@@ -38,6 +39,7 @@ export const abFonlariDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.eurostars-eureka.eu",
     etiketler: ["ab", "eurostars", "uluslararası", "konsorsiyum", "ar-ge"],
     oncelik: 3,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       sirketTurleri: ["AS", "LTD"],
       maxCalisan: 500,
@@ -59,6 +61,7 @@ export const abFonlariDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://cinea.ec.europa.eu/programmes/life_en",
     etiketler: ["çevre", "iklim", "yeşil", "sürdürülebilirlik", "ab", "enerji"],
     oncelik: 3,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       notlar: "Konsorsiyum zorunluluğu; en az 1 AB ülkesinden ortak gerekli. Çevre veya enerji sektöründe faaliyet avantaj sağlar.",
     },
@@ -78,6 +81,7 @@ export const abFonlariDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://digital-strategy.ec.europa.eu/en/activities/digital-programme",
     etiketler: ["ab", "yapay zeka", "siber güvenlik", "dijital", "teknoloji"],
     oncelik: 3,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       argeZorunlu: true,
       notlar: "Türkiye'nin programa katılımı müzakerelere bağlı. Konsorsiyum zorunlu.",
@@ -97,6 +101,7 @@ export const abFonlariDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://culture.ec.europa.eu/creative-europe",
     etiketler: ["ab", "kültür", "medya", "yaratıcı", "sanat", "film"],
     oncelik: 4,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       sektorler: ["59", "60", "74", "90", "91"],
       notlar: "Kültür ve yaratıcı sektör firmaları için. Konsorsiyum tercih edilir.",

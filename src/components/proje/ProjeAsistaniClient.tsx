@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { DestekProgrami, ProjeOnerisi } from "@/types";
+import { useAuth } from "@/contexts/AuthContext";
 import { KATEGORI_ADI } from "@/lib/utils";
 import {
   FileText,
@@ -19,9 +20,16 @@ import { cn } from "@/lib/utils";
 
 type DestekOzet = Pick<DestekProgrami, "slug" | "ad" | "kurum" | "kategori">;
 
-export function ProjeAsistaniClient({ destekler }: { destekler: DestekOzet[] }) {
+export function ProjeAsistaniClient({
+  destekler,
+  baslangicSlug = "",
+}: {
+  destekler: DestekOzet[];
+  baslangicSlug?: string;
+}) {
+  const { firebaseUser } = useAuth();
   const [raporMetni, setRaporMetni] = useState("");
-  const [secilenSlug, setSecilenSlug] = useState("");
+  const [secilenSlug, setSecilenSlug] = useState(baslangicSlug);
   const [yukleniyor, setYukleniyor] = useState(false);
   const [oneri, setOneri] = useState<ProjeOnerisi | null>(null);
   const [hata, setHata] = useState<string | null>(null);
@@ -61,8 +69,29 @@ export function ProjeAsistaniClient({ destekler }: { destekler: DestekOzet[] }) 
 
       const jsonEslesmesi = tamMetin.match(/\{[\s\S]*\}/);
       if (jsonEslesmesi) {
-        setOneri(JSON.parse(jsonEslesmesi[0]));
+        const sonuc: ProjeOnerisi = JSON.parse(jsonEslesmesi[0]);
+        setOneri(sonuc);
         setAkisMetni("");
+
+        // Firestore'a geçmiş kaydet (giriş yapıldıysa)
+        if (firebaseUser) {
+          try {
+            const { db } = await import("@/lib/firebase");
+            if (db) {
+              const { collection, addDoc, serverTimestamp } = await import("firebase/firestore");
+              await addDoc(
+                collection(db, "kullanicilar", firebaseUser.uid, "analizler"),
+                {
+                  hedefDestekSlug: secilenSlug,
+                  hedefDestekAdi: secilenDestek?.ad ?? secilenSlug,
+                  raporOzeti: raporMetni.slice(0, 200),
+                  genelPuan: sonuc.genelPuan,
+                  olusturmaTarihi: serverTimestamp(),
+                },
+              );
+            }
+          } catch { /* sessiz hata */ }
+        }
       }
     } catch {
       setHata("AI analizi sırasında bir hata oluştu. API anahtarınızı ve bağlantınızı kontrol edin.");
@@ -206,38 +235,28 @@ export function ProjeAsistaniClient({ destekler }: { destekler: DestekOzet[] }) 
       <div>
         {/* Hata */}
         {hata && (
-          <div className="mb-4 flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 animate-slide-up">
-            <AlertCircle size={16} className="mt-0.5 shrink-0" />
-            {hata}
+          <div className="mb-4 rounded-xl border border-red-200 bg-red-50 p-4 animate-slide-up">
+            <div className="flex items-start gap-2 text-sm text-red-700 mb-3">
+              <AlertCircle size={16} className="mt-0.5 shrink-0" />
+              {hata}
+            </div>
+            <button
+              onClick={analiz}
+              disabled={!hazir}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700 transition-colors disabled:opacity-50"
+            >
+              <AlertCircle size={11} />
+              Tekrar Dene
+            </button>
           </div>
         )}
 
         {/* Streaming önizleme */}
         {yukleniyor && (
-          <div className="card p-5 mb-4 animate-fade-in">
-            <div className="mb-3 flex items-center gap-2">
-              <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-violet-300 border-t-violet-600" />
-              <span className="text-sm font-medium text-violet-700">
-                {secilenDestek?.ad || "Rapor"} analiz ediliyor...
-              </span>
-            </div>
-            {akisMetni && (
-              <pre className="max-h-52 overflow-hidden text-[11px] text-slate-400 whitespace-pre-wrap font-mono leading-relaxed bg-slate-50 rounded-lg p-3 border border-slate-100">
-                {akisMetni.slice(-500)}
-              </pre>
-            )}
-            {!akisMetni && (
-              <div className="space-y-2">
-                {[...Array(4)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="shimmer h-3 rounded-full"
-                    style={{ width: `${85 - i * 12}%` }}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
+          <AnalizBekleEkrani
+            destekAdi={secilenDestek?.ad}
+            akisMetni={akisMetni}
+          />
         )}
 
         {/* Boş durum */}
@@ -360,6 +379,125 @@ function OnerilerPanel({ oneri }: { oneri: ProjeOnerisi }) {
   );
 }
 
+function AnalizBekleEkrani({
+  destekAdi,
+  akisMetni,
+}: {
+  destekAdi?: string;
+  akisMetni: string;
+}) {
+  const ADIMLAR = [
+    "Proje metni okunuyor",
+    "Destek kriterleriyle karşılaştırılıyor",
+    "Bölüm bazlı değerlendirme yapılıyor",
+    "Öneriler oluşturuluyor",
+  ];
+
+  // Gelen akış metninin uzunluğuna göre hangi aşamada olduğumuzu tahmin et
+  const tahminiAdim = Math.min(
+    Math.floor((akisMetni.length / 600) * ADIMLAR.length),
+    ADIMLAR.length - 1,
+  );
+
+  return (
+    <div className="card p-6 mb-4 animate-fade-in" aria-live="polite" aria-label="Analiz devam ediyor">
+      {/* Başlık */}
+      <div className="mb-5 flex items-center gap-3">
+        <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-100">
+          <Sparkles size={18} className="text-violet-600 animate-pulse" />
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-slate-800">
+            Claude analiz ediyor
+            <span className="inline-flex gap-0.5 ml-1">
+              {[0, 1, 2].map((i) => (
+                <span
+                  key={i}
+                  className="inline-block h-1 w-1 rounded-full bg-violet-500 animate-bounce"
+                  style={{ animationDelay: `${i * 150}ms` }}
+                />
+              ))}
+            </span>
+          </p>
+          {destekAdi && (
+            <p className="text-xs text-slate-400 mt-0.5 truncate max-w-[240px]">
+              Hedef: {destekAdi}
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Aşama göstergesi */}
+      <div className="space-y-2.5 mb-5">
+        {ADIMLAR.map((adim, i) => {
+          const tamamlandi = i < tahminiAdim;
+          const aktif = i === tahminiAdim;
+          return (
+            <div key={adim} className="flex items-center gap-2.5">
+              <div
+                className={cn(
+                  "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[9px] font-bold transition-all duration-500",
+                  tamamlandi
+                    ? "border-emerald-400 bg-emerald-500 text-white"
+                    : aktif
+                      ? "border-violet-400 bg-violet-100 text-violet-600"
+                      : "border-slate-200 bg-slate-50 text-slate-300",
+                )}
+              >
+                {tamamlandi ? <CheckCircle2 size={11} /> : i + 1}
+              </div>
+              <span
+                className={cn(
+                  "text-xs transition-all duration-300",
+                  tamamlandi
+                    ? "text-emerald-600 line-through decoration-emerald-300"
+                    : aktif
+                      ? "text-violet-700 font-semibold"
+                      : "text-slate-300",
+                )}
+              >
+                {adim}
+                {aktif && (
+                  <span className="ml-1 inline-flex gap-0.5">
+                    {[0, 1, 2].map((j) => (
+                      <span
+                        key={j}
+                        className="inline-block h-0.5 w-0.5 rounded-full bg-violet-500 animate-bounce"
+                        style={{ animationDelay: `${j * 100}ms` }}
+                      />
+                    ))}
+                  </span>
+                )}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Gelen veri önizlemesi */}
+      {akisMetni.length > 0 ? (
+        <div className="rounded-xl border border-slate-100 bg-slate-50 p-3">
+          <p className="text-[10px] text-slate-400 mb-1.5 font-medium uppercase tracking-wide">Ham yanıt</p>
+          <pre className="max-h-28 overflow-hidden text-[10px] text-slate-400 whitespace-pre-wrap font-mono leading-relaxed">
+            {akisMetni.slice(-400)}
+          </pre>
+          <div className="h-6 bg-gradient-to-t from-slate-50 to-transparent -mb-3 -mx-3 relative -mt-2 rounded-b-xl" />
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {[80, 65, 72, 50].map((w, i) => (
+            <div
+              key={i}
+              className="h-2.5 animate-pulse rounded-full bg-slate-100"
+              style={{ width: `${w}%`, animationDelay: `${i * 120}ms` }}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function BolumKarti({ bolum }: { bolum: ProjeOnerisi["bolumler"][number] }) {
   const [acik, setAcik] = useState(bolum.puan < 70);
 
@@ -375,6 +513,8 @@ function BolumKarti({ bolum }: { bolum: ProjeOnerisi["bolumler"][number] }) {
       <button
         className="flex w-full items-center gap-3 p-4 text-left transition-colors hover:bg-slate-50"
         onClick={() => setAcik(!acik)}
+        aria-expanded={acik}
+        aria-label={`${bolum.baslik} — ${acik ? "daralt" : "detayları göster"}`}
       >
         {/* Puan rozetli daire */}
         <div className={cn("relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sm font-bold", config.bg, config.text)}>

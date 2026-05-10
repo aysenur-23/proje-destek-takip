@@ -1,4 +1,4 @@
-import type { DestekProgrami } from "@/types";
+﻿import type { DestekProgrami } from "@/types";
 
 export const kosgebDestekleri: DestekProgrami[] = [
   {
@@ -16,6 +16,7 @@ export const kosgebDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.kosgeb.gov.tr/site/tr/genel/destekler/3847/girisimcilik-destek-programi",
     etiketler: ["girişimcilik", "yeni firma", "işletme gideri", "kobi"],
     oncelik: 1,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       sirketTurleri: ["AS", "LTD", "SAHIS"],
       maxKurulusYili: 2021,
@@ -40,6 +41,7 @@ export const kosgebDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.kosgeb.gov.tr/site/tr/genel/destekler/3850/kobi-teknolojik-urun-yatirim-destek-programi",
     etiketler: ["ticarileştirme", "yatırım", "teknoloji", "önceki destek"],
     oncelik: 2,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       sirketTurleri: ["AS", "LTD"],
       maxCalisan: 250,
@@ -61,6 +63,7 @@ export const kosgebDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.kosgeb.gov.tr/site/tr/genel/destekler/3848/ar-ge-inovasyon-ve-endustriyel-uygulama-destek-programi",
     etiketler: ["ar-ge", "inovasyon", "kobi", "hibe", "faizsiz kredi"],
     oncelik: 1,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       sirketTurleri: ["AS", "LTD"],
       maxCalisan: 250,
@@ -82,6 +85,7 @@ export const kosgebDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.kosgeb.gov.tr/site/tr/genel/destekler/3853/ihracat-pazarlari-gelistirme-destek-programi",
     etiketler: ["ihracat", "fuar", "yurt dışı", "pazar araştırma"],
     oncelik: 2,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       sirketTurleri: ["AS", "LTD"],
       maxCalisan: 250,
@@ -103,6 +107,7 @@ export const kosgebDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.kosgeb.gov.tr/site/tr/genel/destekler/3858/dijital-donusum-destek-programi",
     etiketler: ["dijitalleşme", "erp", "e-ticaret", "yazılım", "teknoloji"],
     oncelik: 1,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       sirketTurleri: ["AS", "LTD", "SAHIS"],
       maxCalisan: 250,
@@ -123,6 +128,7 @@ export const kosgebDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.kosgeb.gov.tr/site/tr/genel/destekler/3860/sur-ge-programi",
     etiketler: ["yerli üretim", "stratejik ürün", "savunma", "kritik teknoloji"],
     oncelik: 2,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       sirketTurleri: ["AS", "LTD"],
       minCalisan: 10,
@@ -144,6 +150,7 @@ export const kosgebDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.kosgeb.gov.tr/site/tr/genel/destekler/3854/nitelikli-eleman-destek-programi",
     etiketler: ["istihdam", "mühendis", "nitelikli personel", "ücret"],
     oncelik: 3,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       sirketTurleri: ["AS", "LTD"],
       maxCalisan: 250,
@@ -164,6 +171,7 @@ export const kosgebDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.kosgeb.gov.tr/site/tr/genel/destekler/3849/isletme-gelistirme-ve-buyume-destek-programi",
     etiketler: ["makine", "ekipman", "kapasite", "büyüme", "sertifikasyon"],
     oncelik: 2,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       sirketTurleri: ["AS", "LTD", "SAHIS"],
       maxCalisan: 250,

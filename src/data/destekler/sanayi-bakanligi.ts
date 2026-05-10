@@ -1,4 +1,4 @@
-import type { DestekProgrami } from "@/types";
+﻿import type { DestekProgrami } from "@/types";
 
 export const sanayiBakanligiDestekleri: DestekProgrami[] = [
   {
@@ -16,6 +16,7 @@ export const sanayiBakanligiDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.sanayi.gov.tr/hizmetler/ar-ge-ve-teknoloji/tosh",
     etiketler: ["yerli üretim", "kritik teknoloji", "yatırım", "büyük ölçek", "sanayi"],
     oncelik: 2,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       sirketTurleri: ["AS", "LTD"],
       minCalisan: 50,
@@ -36,6 +37,7 @@ export const sanayiBakanligiDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.sanayi.gov.tr/hizmetler/ar-ge-ve-teknoloji/arge-merkezi",
     etiketler: ["ar-ge merkezi", "vergi indirimi", "5746", "prim desteği", "kurumlar vergisi"],
     oncelik: 1,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       sirketTurleri: ["AS", "LTD"],
       minCalisan: 15,
@@ -55,6 +57,7 @@ export const sanayiBakanligiDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.sanayi.gov.tr/hizmetler/ar-ge-ve-teknoloji/tasarim-merkezi",
     etiketler: ["tasarım merkezi", "endüstriyel tasarım", "vergi", "5746"],
     oncelik: 2,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       sirketTurleri: ["AS", "LTD"],
       minCalisan: 10,
@@ -73,6 +76,7 @@ export const sanayiBakanligiDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.sanayi.gov.tr/hizmetler/osb",
     etiketler: ["osb", "yatırım", "sanayi", "arazi", "altyapı"],
     oncelik: 2,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       osbZorunlu: true,
       notlar: "OSB'de parsel tahsisi veya kiralama yapılmalı.",

@@ -1,4 +1,4 @@
-import type { DestekProgrami } from "@/types";
+﻿import type { DestekProgrami } from "@/types";
 
 export const tkdkDestekleri: DestekProgrami[] = [
   {
@@ -16,6 +16,7 @@ export const tkdkDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.tkdk.gov.tr/DestekProgram/ipard3",
     etiketler: ["tarım", "hayvancılık", "sera", "sulama", "ipard"],
     oncelik: 1,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       sirketTurleri: ["AS", "LTD", "SAHIS", "KOOPERATIF"],
       sektorler: ["01"],
@@ -38,6 +39,7 @@ export const tkdkDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.tkdk.gov.tr/DestekProgram/ipard3",
     etiketler: ["gıda işleme", "tarım", "pazarlama", "ihracat", "ipard"],
     oncelik: 2,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       sirketTurleri: ["AS", "LTD", "KOOPERATIF"],
       sektorler: ["01", "10", "11"],
@@ -58,6 +60,7 @@ export const tkdkDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.tkdk.gov.tr/DestekProgram/ipard3",
     etiketler: ["turizm", "kırsal", "ekoturizm", "konaklama", "ipard"],
     oncelik: 3,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       sirketTurleri: ["AS", "LTD", "SAHIS"],
       sektorler: ["55", "56", "93"],

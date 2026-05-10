@@ -1,4 +1,4 @@
-import type { DestekProgrami } from "@/types";
+﻿import type { DestekProgrami } from "@/types";
 
 export const sgkDestekleri: DestekProgrami[] = [
   {
@@ -15,6 +15,7 @@ export const sgkDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.resmigazete.gov.tr/eskiler/2008/03/20080312-1.htm",
     etiketler: ["sgk", "ar-ge", "prim desteği", "ar-ge merkezi", "teknokent"],
     oncelik: 1,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       argeZorunlu: true,
       notlar: "Firmada TÜBİTAK/Sanayi Bakanlığı onaylı Ar-Ge merkezi veya teknokent üyeliği olmalı. Ar-Ge personeli sayısı en az 15 (Ar-Ge merkezi için).",
@@ -34,6 +35,7 @@ export const sgkDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.resmigazete.gov.tr/eskiler/2001/07/20010706.htm",
     etiketler: ["teknokent", "sgk", "prim desteği", "ar-ge personeli"],
     oncelik: 1,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       teknokentZorunlu: true,
       notlar: "Teknokent kiracısı veya teknokent içinde faaliyet gösteren firmalar için geçerlidir.",
@@ -53,6 +55,7 @@ export const sgkDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.sgk.gov.tr/wps/portal/sgk/tr/calisan/isverenler/tesvikler",
     etiketler: ["sgk", "istihdam", "işsizlik", "prim desteği", "yeni işe alım"],
     oncelik: 1,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       notlar: "Tüm işverenler yararlanabilir. İşe alınan kişi işsizlik ödeneği alıyor olmalı.",
     },
@@ -70,6 +73,7 @@ export const sgkDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.sgk.gov.tr/wps/portal/sgk/tr/calisan/isverenler/tesvikler",
     etiketler: ["engelli", "eski hükümlü", "sgk", "prim desteği", "istihdam"],
     oncelik: 2,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       notlar: "İşveren engelli veya eski hükümlü işe alırsa prim desteğinden faydalanır.",
     },
@@ -86,6 +90,7 @@ export const sgkDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.resmigazete.gov.tr/eskiler/2020/07/20200728-1.htm",
     etiketler: ["dijital", "yazılım", "yapay zeka", "sgk", "istihdam"],
     oncelik: 2,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       notlar: "Teknik mezuniyet şartı aranmaktadır; net ücret sınırı uygulanır.",
     },

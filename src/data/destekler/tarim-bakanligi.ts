@@ -1,4 +1,4 @@
-import type { DestekProgrami } from "@/types";
+﻿import type { DestekProgrami } from "@/types";
 
 export const tarimBakanligiDestekleri: DestekProgrami[] = [
   {
@@ -16,6 +16,7 @@ export const tarimBakanligiDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.tarimorman.gov.tr/TAGEM/Belgeler/yayin/KKYDP",
     etiketler: ["kırsal kalkınma", "tarım", "yatırım", "hibe", "istihdam"],
     oncelik: 2,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       sirketTurleri: ["AS", "LTD", "SAHIS", "KOOPERATIF"],
       sektorler: ["01", "02", "03", "10", "11"],
@@ -39,6 +40,7 @@ export const tarimBakanligiDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.tarimorman.gov.tr/BUGEM/Belgeler/yayinlar/genc-ciftci",
     etiketler: ["genç çiftçi", "tarım", "hibe", "genç girişimci"],
     oncelik: 1,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       sirketTurleri: ["SAHIS"],
       gencGirisimciBonus: false,
@@ -57,6 +59,7 @@ export const tarimBakanligiDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.tarimorman.gov.tr/TAGEM/Belgeler/yayin/organik-tarim",
     etiketler: ["organik", "tarım", "sertifika", "prim", "çiftçi"],
     oncelik: 3,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       sirketTurleri: ["SAHIS", "KOOPERATIF", "LTD"],
       sektorler: ["01"],
@@ -75,6 +78,7 @@ export const tarimBakanligiDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.tarimorman.gov.tr/GKGM/Belgeler/iyi-tarim",
     etiketler: ["iyi tarım", "itu", "sertifika", "gıda güvenliği", "kalite"],
     oncelik: 4,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       sektorler: ["01"],
       notlar: "Yetkili kuruluştan İTU sertifikası gerekli.",

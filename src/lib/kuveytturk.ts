@@ -58,10 +58,41 @@ export function buildKTFormData(params: KTOdemeParams) {
 }
 
 export function verifyKTCallback(params: Record<string, string>): boolean {
-  const { MerchantId, MerchantOrderId, Amount, ResponseCode } = params;
+  const { MerchantId, MerchantOrderId, Amount, ResponseCode, HashData } = params;
+
+  // Zorunlu alanlar kontrolü
+  if (!MerchantId || !MerchantOrderId || !Amount || !ResponseCode || !HashData) {
+    console.warn("[KT] Webhook: Eksik parametreler", { MerchantId, MerchantOrderId });
+    return false;
+  }
+
+  // MerchantId tutarlılığı
+  if (MerchantId !== KT_CONFIG.merchantId) {
+    console.warn("[KT] Webhook: MerchantId uyumsuz", { gelen: MerchantId });
+    return false;
+  }
+
   const hashedPassword = sha1Base64(KT_CONFIG.password);
   const expectedHash = sha1Base64(
     `${MerchantId}${MerchantOrderId}${Amount}${KT_CONFIG.okUrl}${KT_CONFIG.failUrl}${KT_CONFIG.userName}${hashedPassword}`,
   );
-  return expectedHash === params.HashData && ResponseCode === "00";
+
+  // Timing-safe karşılaştırma (zamansal saldırı önleme)
+  const expected = Buffer.from(expectedHash, "utf8");
+  const received = Buffer.from(HashData, "utf8");
+  const hashGecerli =
+    expected.length === received.length &&
+    crypto.timingSafeEqual(expected, received);
+
+  if (!hashGecerli) {
+    console.warn("[KT] Webhook: HashData geçersiz");
+    return false;
+  }
+
+  if (ResponseCode !== "00") {
+    console.warn("[KT] Webhook: Başarısız işlem kodu", { ResponseCode });
+    return false;
+  }
+
+  return true;
 }

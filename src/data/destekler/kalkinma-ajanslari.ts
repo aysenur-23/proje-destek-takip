@@ -1,4 +1,4 @@
-import type { DestekProgrami } from "@/types";
+﻿import type { DestekProgrami } from "@/types";
 
 export const kalkinmaAjanslariDestekleri: DestekProgrami[] = [
   {
@@ -16,6 +16,7 @@ export const kalkinmaAjanslariDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.kalkinma.gov.tr",
     etiketler: ["kalkınma ajansı", "bölgesel", "hızlı destek", "küçük ölçek"],
     oncelik: 2,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       notlar: "İl bazında ilgili kalkınma ajansına (İSTKA, İZKA, BEBKA vb.) başvurulmalı. Kâr amacı olmayan kuruluşlara öncelik.",
     },
@@ -35,6 +36,7 @@ export const kalkinmaAjanslariDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.kalkinma.gov.tr/destekler",
     etiketler: ["kalkınma ajansı", "mali destek", "teklif çağrısı", "bölgesel", "yıllık"],
     oncelik: 2,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       notlar: "Her ajans yılda 1-3 çağrı açar; öncelikler ajana ve yıla göre değişir. Eş finansman (%25-50) gereklidir.",
     },
@@ -54,6 +56,7 @@ export const kalkinmaAjanslariDestekleri: DestekProgrami[] = [
     mevzuatUrl: "https://www.kalkinma.gov.tr/destekler",
     etiketler: ["teknik destek", "eğitim", "danışmanlık", "kalkınma ajansı"],
     oncelik: 3,
+    sonGuncelleme: "2026-05-10",
     kriterler: {
       notlar: "Para yardımı değil; ajans uzmanları veya uzman firmaları aracılığıyla hizmet sağlanır.",
     },
