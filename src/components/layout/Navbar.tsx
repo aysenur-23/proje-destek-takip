@@ -8,6 +8,7 @@ import {
   Building2,
   Search,
   FileText,
+  BookOpen,
   Crown,
   Menu,
   X,
@@ -15,6 +16,7 @@ import {
   LogOut,
   User,
   ChevronDown,
+  Settings2,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -22,15 +24,27 @@ import { useAuth } from "@/contexts/AuthContext";
 const navOgeleri = [
   { href: "/destekler", etiket: "Destekler", ikon: Search },
   { href: "/firma", etiket: "Firma Profili", ikon: Building2 },
+  { href: "/blog", etiket: "Blog", ikon: BookOpen },
   { href: "/proje-asistani", etiket: "Proje Asistanı", ikon: FileText, premium: true },
 ];
+
+const ADMIN_EMAILS = (process.env.NEXT_PUBLIC_ADMIN_EMAILS ?? "")
+  .split(",")
+  .map((e) => e.trim().toLowerCase())
+  .filter(Boolean);
 
 export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const [menuAcik, setMenuAcik] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const { kullanici, cikisYap, yukleniyor } = useAuth();
+  const { kullanici, firebaseUser, cikisYap, yukleniyor } = useAuth();
+
+  const adminMi =
+    !!firebaseUser &&
+    (ADMIN_EMAILS.length === 0
+      ? false
+      : ADMIN_EMAILS.includes(firebaseUser.email?.toLowerCase() ?? ""));
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 8);
@@ -108,6 +122,20 @@ export function Navbar() {
           <div className="hidden items-center gap-2 md:flex">
             {!yukleniyor && kullanici ? (
               <>
+                {adminMi && (
+                  <Link
+                    href="/admin"
+                    className={cn(
+                      "flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all",
+                      pathname === "/admin" || pathname.startsWith("/admin/")
+                        ? "bg-amber-100 text-amber-700"
+                        : "text-amber-600 hover:bg-amber-50",
+                    )}
+                  >
+                    <Settings2 size={12} />
+                    Admin
+                  </Link>
+                )}
                 {kullanici.plan === "premium" ? (
                   <span className="flex items-center gap-1.5 rounded-lg bg-violet-50 px-2.5 py-1 text-xs font-semibold text-violet-700 border border-violet-100">
                     <Crown size={11} className="fill-violet-600" />
@@ -122,15 +150,18 @@ export function Navbar() {
                     Premium&apos;a Geç
                   </Link>
                 )}
-                <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-1.5 shadow-sm">
-                  <div className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-100">
-                    <User size={11} className="text-blue-600" />
+                <Link
+                  href="/dashboard"
+                  className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-1.5 shadow-[var(--shadow-xs)] hover:border-blue-300 hover:bg-blue-50 transition-colors"
+                >
+                  <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white text-[9px] font-bold select-none">
+                    {kullanici.ad?.charAt(0)?.toUpperCase() ?? <User size={10} />}
                   </div>
                   <span className="max-w-[100px] truncate text-xs font-medium text-slate-700">
                     {kullanici.ad}
                   </span>
                   <ChevronDown size={12} className="text-slate-400" />
-                </div>
+                </Link>
                 <button onClick={handleCikis} className="btn-sm btn-secondary gap-1.5 text-xs">
                   <LogOut size={13} />
                   Çıkış
@@ -186,13 +217,14 @@ export function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu — CSS grid trick for smooth height animation */}
       <div
         className={cn(
-          "overflow-hidden transition-all duration-300 ease-in-out md:hidden",
-          menuAcik ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0",
+          "grid transition-all duration-300 ease-in-out md:hidden",
+          menuAcik ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
         )}
       >
+        <div className="overflow-hidden">
         <div className="border-t border-slate-100 bg-white px-4 py-3 space-y-1">
           {navOgeleri.map((item) => {
             const aktif = pathname === item.href || pathname.startsWith(item.href + "/");
@@ -227,23 +259,47 @@ export function Navbar() {
             );
           })}
 
+          {adminMi && (
+            <Link
+              href="/admin"
+              onClick={() => setMenuAcik(false)}
+              className={cn(
+                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
+                pathname.startsWith("/admin")
+                  ? "bg-amber-50 text-amber-700"
+                  : "text-amber-600 hover:bg-amber-50",
+              )}
+            >
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-100 text-amber-600">
+                <Settings2 size={14} />
+              </div>
+              <span>Admin Paneli</span>
+            </Link>
+          )}
+
           <div className="flex flex-col gap-2 border-t border-slate-100 pt-3 mt-1">
             {kullanici ? (
               <>
-                <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-slate-50">
-                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-100">
-                    <User size={13} className="text-blue-600" />
+                <Link
+                  href="/dashboard"
+                  onClick={() => setMenuAcik(false)}
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-slate-50 hover:bg-blue-50 transition-colors"
+                >
+                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white text-[11px] font-bold select-none shrink-0">
+                    {kullanici.ad?.charAt(0)?.toUpperCase() ?? <User size={12} />}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="truncate text-sm font-medium text-slate-800">{kullanici.ad}</p>
-                    {kullanici.plan === "premium" && (
+                    {kullanici.plan === "premium" ? (
                       <p className="flex items-center gap-1 text-[10px] text-violet-600 font-semibold">
                         <Crown size={8} className="fill-violet-600" />
                         Premium Üye
                       </p>
+                    ) : (
+                      <p className="text-[10px] text-slate-400">Panele git →</p>
                     )}
                   </div>
-                </div>
+                </Link>
                 <button onClick={handleCikis} className="btn-md btn-secondary w-full">
                   <LogOut size={15} />
                   Çıkış Yap
@@ -262,6 +318,7 @@ export function Navbar() {
             )}
           </div>
         </div>
+        </div>{/* overflow-hidden */}
       </div>
     </header>
   );

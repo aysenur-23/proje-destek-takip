@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useCallback } from "react";
 import Link from "next/link";
-import { Printer, ArrowLeft, CheckCircle2, AlertCircle, Info } from "lucide-react";
+import { Printer, ArrowLeft, CheckCircle2, AlertCircle, Info, Download } from "lucide-react";
 import { tumDestekler } from "@/data/destekler";
 import { tumDestekleriFiltrele } from "@/lib/filtrele";
 import type { FirmaProfili, DestekKategori } from "@/types";
@@ -60,6 +60,39 @@ export default function RaporSayfasi() {
     year: "numeric",
   });
 
+  // CSV export
+  const csvIndir = useCallback(() => {
+    if (!firma) return;
+    const satirlar = [
+      ["Program Adı", "Kategori", "Tür", "Uygunluk Skoru (%)", "Max Bütçe (TL)", "Hibe Oranı (%)", "Son Başvuru"],
+      ...uygunlar.map(({ destek, uygunlukSkoru }) => [
+        destek.ad,
+        KATEGORI_TURKCE[destek.kategori] ?? destek.kategori,
+        TUR_TURKCE[destek.tur] ?? destek.tur,
+        Math.round(uygunlukSkoru).toString(),
+        destek.butceUstSinir?.toString() ?? "",
+        destek.hibeOrani?.toString() ?? "",
+        destek.basvuruBitis
+          ? new Date(destek.basvuruBitis).toLocaleDateString("tr-TR")
+          : "",
+      ]),
+    ];
+    const csvIcerik =
+      "﻿" + // UTF-8 BOM (Excel Türkçe karakter desteği)
+      satirlar
+        .map((satir) =>
+          satir.map((h) => `"${String(h).replace(/"/g, '""')}"`).join(";")
+        )
+        .join("\n");
+    const blob = new Blob([csvIcerik], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `destek-raporu-${firma.ad.replace(/\s+/g, "-").toLowerCase()}-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [firma, uygunlar]);
+
   if (!firma) {
     return (
       <div className="container py-16 text-center">
@@ -90,13 +123,22 @@ export default function RaporSayfasi() {
             <ArrowLeft size={15} />
             Dashboard'a Dön
           </Link>
-          <button
-            onClick={() => window.print()}
-            className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
-          >
-            <Printer size={14} />
-            Yazdır / PDF Kaydet
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={csvIndir}
+              className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+            >
+              <Download size={14} />
+              CSV İndir
+            </button>
+            <button
+              onClick={() => window.print()}
+              className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
+            >
+              <Printer size={14} />
+              Yazdır / PDF Kaydet
+            </button>
+          </div>
         </div>
       </div>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { X, Building2, Search, Sparkles, ArrowRight, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -73,6 +73,8 @@ export function WelcomeTour() {
   const router = useRouter();
   const [goster, setGoster] = useState(false);
   const [adim, setAdim] = useState(0);
+  const modalRef = useRef<HTMLDivElement>(null);
+  const oncekiOdakRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     // İlk ziyareti kontrol et — bir sonraki tick'te çalıştır (hydration)
@@ -80,6 +82,8 @@ export function WelcomeTour() {
       try {
         const tamamlandi = localStorage.getItem(TOUR_KEY);
         if (!tamamlandi) {
+          // Açılmadan önce odak noktasını kaydet
+          oncekiOdakRef.current = document.activeElement as HTMLElement;
           setGoster(true);
         }
       } catch {
@@ -89,6 +93,57 @@ export function WelcomeTour() {
     return () => clearTimeout(timer);
   }, []);
 
+  // Modal açıldığında ilk odaklanabilir elemana focus ver
+  useEffect(() => {
+    if (!goster) return;
+    const timer = setTimeout(() => {
+      const ilkOdak = modalRef.current?.querySelector<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      ilkOdak?.focus();
+    }, 50);
+    return () => clearTimeout(timer);
+  }, [goster]);
+
+  // Focus trap — Tab ve Shift+Tab
+  const focusTrap = useCallback((e: KeyboardEvent) => {
+    if (e.key !== "Tab" || !modalRef.current) return;
+    const odaklanabilir = Array.from(
+      modalRef.current.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      )
+    ).filter((el) => !el.hasAttribute("disabled"));
+    if (odaklanabilir.length === 0) return;
+    const ilk = odaklanabilir[0];
+    const son = odaklanabilir[odaklanabilir.length - 1];
+    if (e.shiftKey) {
+      if (document.activeElement === ilk) {
+        e.preventDefault();
+        son.focus();
+      }
+    } else {
+      if (document.activeElement === son) {
+        e.preventDefault();
+        ilk.focus();
+      }
+    }
+  }, []);
+
+  // ESC ile kapat
+  const escKapat = useCallback((e: KeyboardEvent) => {
+    if (e.key === "Escape") kapat(); // eslint-disable-line @typescript-eslint/no-use-before-define
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!goster) return;
+    document.addEventListener("keydown", focusTrap);
+    document.addEventListener("keydown", escKapat);
+    return () => {
+      document.removeEventListener("keydown", focusTrap);
+      document.removeEventListener("keydown", escKapat);
+    };
+  }, [goster, focusTrap, escKapat]);
+
   function kapat() {
     try {
       localStorage.setItem(TOUR_KEY, "done");
@@ -96,6 +151,8 @@ export function WelcomeTour() {
       // pass
     }
     setGoster(false);
+    // Odağı önceki elemente döndür
+    setTimeout(() => oncekiOdakRef.current?.focus(), 50);
   }
 
   function ileri() {
@@ -137,7 +194,7 @@ export function WelcomeTour() {
       />
 
       {/* Modal kart */}
-      <div className="relative z-10 w-full max-w-md animate-slide-up rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/20">
+      <div ref={modalRef} className="relative z-10 w-full max-w-md animate-slide-up rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/20">
         {/* Kapat butonu */}
         <button
           onClick={kapat}
