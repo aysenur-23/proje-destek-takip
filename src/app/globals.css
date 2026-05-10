@@ -2,43 +2,61 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222 47% 11%;
-    --primary: 221 83% 53%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222 47% 11%;
-    --destructive: 0 84% 60%;
+    --background:             0 0% 100%;
+    --foreground:             222 47% 11%;
+    --primary:                221 83% 53%;
+    --primary-foreground:     210 40% 98%;
+    --secondary:              210 40% 96%;
+    --secondary-foreground:   222 47% 11%;
+    --muted:                  210 40% 96%;
+    --muted-foreground:       215 16% 47%;
+    --accent:                 210 40% 96%;
+    --accent-foreground:      222 47% 11%;
+    --destructive:            0 84% 60%;
     --destructive-foreground: 210 40% 98%;
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 221 83% 53%;
-    --radius: 0.75rem;
+    --border:                 214 32% 91%;
+    --input:                  214 32% 91%;
+    --ring:                   221 83% 53%;
+    --radius:                 0.75rem;
 
-    --brand-50: #eff6ff;
+    /* Brand palette */
+    --brand-50:  #eff6ff;
     --brand-100: #dbeafe;
+    --brand-200: #bfdbfe;
     --brand-500: #3b82f6;
     --brand-600: #2563eb;
     --brand-700: #1d4ed8;
     --brand-900: #1e3a8a;
 
+    /* Premium palette */
+    --premium-50:  #f5f3ff;
+    --premium-100: #ede9fe;
     --premium-500: #8b5cf6;
     --premium-600: #7c3aed;
     --premium-700: #6d28d9;
 
-    --success-50: #ecfdf5;
+    /* Semantic colors */
+    --success-50:  #ecfdf5;
+    --success-100: #d1fae5;
     --success-500: #10b981;
     --success-600: #059669;
 
-    --warning-50: #fffbeb;
+    --warning-50:  #fffbeb;
+    --warning-100: #fef3c7;
     --warning-500: #f59e0b;
+    --warning-600: #d97706;
 
-    --neutral-50: #f8fafc;
+    --neutral-50:  #f8fafc;
     --neutral-900: #0f172a;
+
+    /* Shadow scale — use via var() or shadow-[var(--shadow-*)] */
+    --shadow-xs:      0 1px 2px 0 rgb(0 0 0 / 0.04);
+    --shadow-sm:      0 1px 3px 0 rgb(0 0 0 / 0.07), 0 1px 2px -1px rgb(0 0 0 / 0.05);
+    --shadow-md:      0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.04);
+    --shadow-lg:      0 10px 15px -3px rgb(0 0 0 / 0.07), 0 4px 6px -4px rgb(0 0 0 / 0.04);
+    --shadow-xl:      0 20px 25px -5px rgb(0 0 0 / 0.08), 0 8px 10px -6px rgb(0 0 0 / 0.04);
+    --shadow-brand:   0 4px 14px 0 rgb(37 99 235 / 0.25);
+    --shadow-premium: 0 4px 14px 0 rgb(124 58 237 / 0.25);
   }
 
   * {
@@ -82,7 +100,7 @@
 }
 
 @layer components {
-  /* Base button styles (inline, not @apply-ed from another class) */
+  /* ── Buttons ── */
   .btn-sm {
     @apply inline-flex items-center justify-center gap-2 font-semibold rounded-xl
       transition-all duration-200 cursor-pointer select-none disabled:opacity-50
@@ -99,128 +117,140 @@
       disabled:cursor-not-allowed active:scale-[0.98] px-6 py-3 text-base;
   }
 
-  .btn-primary { @apply bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-600/25 hover:shadow-blue-600/30 hover:shadow-md; }
-  .btn-secondary { @apply bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 hover:border-slate-300 shadow-sm hover:shadow; }
-  .btn-ghost { @apply hover:bg-slate-100 text-slate-600 hover:text-slate-900; }
-  .btn-premium { @apply bg-violet-600 hover:bg-violet-700 text-white shadow-sm shadow-violet-600/25 hover:shadow-violet-600/30 hover:shadow-md; }
-  .btn-danger { @apply bg-red-600 hover:bg-red-700 text-white shadow-sm; }
+  .btn-primary   { @apply bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-[var(--shadow-brand)] hover:shadow-[0_6px_20px_rgb(37_99_235_/_0.35)] hover:-translate-y-0.5; }
+  .btn-secondary { @apply bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 hover:border-slate-300 shadow-[var(--shadow-xs)] hover:shadow-[var(--shadow-sm)]; }
+  .btn-ghost     { @apply hover:bg-slate-100 text-slate-600 hover:text-slate-900; }
+  .btn-outline   { @apply bg-transparent border border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300 shadow-[var(--shadow-xs)]; }
+  .btn-premium   { @apply bg-violet-600 hover:bg-violet-700 active:bg-violet-800 text-white shadow-[var(--shadow-premium)] hover:shadow-[0_6px_20px_rgb(124_58_237_/_0.35)] hover:-translate-y-0.5; }
+  .btn-danger    { @apply bg-red-600 hover:bg-red-700 text-white shadow-[var(--shadow-xs)]; }
 
+  /* ── Cards ── */
   .card {
-    @apply bg-white rounded-2xl border border-slate-200/80 shadow-sm shadow-slate-900/5;
+    @apply bg-white rounded-2xl border border-slate-200 shadow-[var(--shadow-sm)];
   }
   .card-hover {
-    @apply bg-white rounded-2xl border border-slate-200/80 shadow-sm shadow-slate-900/5
-      hover:border-blue-200 hover:shadow-md hover:shadow-blue-900/5 transition-all duration-200;
+    @apply bg-white rounded-2xl border border-slate-200 shadow-[var(--shadow-sm)]
+      hover:border-blue-200 hover:shadow-[var(--shadow-md)] hover:-translate-y-0.5
+      transition-all duration-200 cursor-pointer;
+  }
+  .card-flat {
+    @apply bg-white rounded-2xl border border-slate-200;
   }
 
-  .badge {
-    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold;
-  }
+  /* ── Badges ── */
+  .badge      { @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold; }
+  .badge-blue    { @apply bg-blue-50 text-blue-700 border border-blue-100; }
+  .badge-violet  { @apply bg-violet-50 text-violet-700 border border-violet-100; }
+  .badge-emerald { @apply bg-emerald-50 text-emerald-700 border border-emerald-100; }
+  .badge-amber   { @apply bg-amber-50 text-amber-700 border border-amber-100; }
+  .badge-red     { @apply bg-red-50 text-red-600 border border-red-100; }
+  .badge-slate   { @apply bg-slate-50 text-slate-600 border border-slate-200; }
 
-  .section { @apply py-16 sm:py-20; }
+  /* ── Layout ── */
+  .section   { @apply py-16 sm:py-20; }
   .container { @apply max-w-7xl mx-auto px-4 sm:px-6; }
 
+  /* ── Typography helpers ── */
   .gradient-text {
     @apply bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent;
   }
+  .heading-xl  { @apply text-4xl sm:text-5xl font-bold text-slate-900 tracking-tight; }
+  .heading-lg  { @apply text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight; }
+  .heading-md  { @apply text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight; }
+  .section-label { @apply text-xs font-semibold uppercase tracking-widest text-blue-600; }
 
+  /* ── Glass ── */
   .glass {
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     background: rgba(255, 255, 255, 0.8);
   }
 
+  /* ── Skeleton / Loading ── */
   .skeleton {
-    @apply bg-slate-200 rounded-lg animate-pulse;
-  }
-
-  .premium-glow {
-    box-shadow: 0 0 30px rgba(139, 92, 246, 0.15);
-  }
-}
-
-@layer utilities {
-  .animate-fade-in {
-    animation: fadeIn 0.4s ease-out both;
-  }
-  .animate-slide-up {
-    animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-  .animate-scale-in {
-    animation: scaleIn 0.2s ease-out both;
-  }
-  .animate-slide-in-right {
-    animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-  .animate-bounce-in {
-    animation: bounceIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-  }
-
-  .delay-75  { animation-delay: 75ms; }
-  .delay-100 { animation-delay: 100ms; }
-  .delay-150 { animation-delay: 150ms; }
-  .delay-200 { animation-delay: 200ms; }
-  .delay-300 { animation-delay: 300ms; }
-
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-
-  @keyframes slideUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes slideInRight {
-    from { opacity: 0; transform: translateX(16px); }
-    to { opacity: 1; transform: translateX(0); }
-  }
-
-  @keyframes scaleIn {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
-  }
-
-  @keyframes bounceIn {
-    from { opacity: 0; transform: scale(0.8); }
-    to { opacity: 1; transform: scale(1); }
-  }
-
-  @keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
-  }
-
-  @keyframes spin-slow {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-
-  @keyframes pulse-ring {
-    0% { transform: scale(1); opacity: 0.8; }
-    100% { transform: scale(1.6); opacity: 0; }
-  }
-
-  .shimmer {
+    @apply rounded-lg;
     background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
   }
+  .skeleton-dark {
+    @apply rounded-lg;
+    background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
 
+  /* ── Effects ── */
+  .premium-glow { box-shadow: 0 0 40px rgba(124, 58, 237, 0.18); }
+  .brand-glow   { box-shadow: 0 0 40px rgba(37, 99, 235, 0.18); }
+
+  /* ── Focus ── */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:ring-offset-2 focus:ring-offset-white;
+  }
+
+  /* ── Progress & status ── */
+  .progress-bar {
+    @apply h-1.5 w-full overflow-hidden rounded-full bg-slate-100;
+  }
+  .status-dot {
+    @apply inline-block h-2 w-2 rounded-full;
+  }
+}
+
+@layer utilities {
+  /* ── Animation classes ── */
+  .animate-fade-in       { animation: fadeIn 0.4s ease-out both; }
+  .animate-slide-up      { animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .animate-scale-in      { animation: scaleIn 0.2s ease-out both; }
+  .animate-slide-in-right { animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .animate-bounce-in     { animation: bounceIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+  /* ── Delay scale ── */
+  .delay-75  { animation-delay: 75ms;  }
+  .delay-100 { animation-delay: 100ms; }
+  .delay-150 { animation-delay: 150ms; }
+  .delay-200 { animation-delay: 200ms; }
+  .delay-300 { animation-delay: 300ms; }
+  .delay-400 { animation-delay: 400ms; }
+  .delay-500 { animation-delay: 500ms; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes slideInRight {
+    from { opacity: 0; transform: translateX(16px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  @keyframes bounceIn {
+    from { opacity: 0; transform: scale(0.8); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  @keyframes shimmer {
+    0%   { background-position: -200% 0; }
+    100% { background-position:  200% 0; }
+  }
+  @keyframes pulse-ring {
+    0%   { transform: scale(1);   opacity: 0.8; }
+    100% { transform: scale(1.6); opacity: 0; }
+  }
+
+  /* ── Text ── */
   .text-balance { text-wrap: balance; }
 
+  /* ── Gradient border ── */
   .ring-gradient {
     background: linear-gradient(white, white) padding-box,
                 linear-gradient(135deg, #3b82f6, #7c3aed) border-box;
     border: 2px solid transparent;
-  }
-
-  .progress-bar {
-    @apply h-1.5 w-full overflow-hidden rounded-full bg-slate-100;
-  }
-
-  .status-dot {
-    @apply inline-block h-2 w-2 rounded-full;
   }
 }

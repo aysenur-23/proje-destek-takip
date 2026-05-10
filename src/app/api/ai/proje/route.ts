@@ -1,5 +1,7 @@
 import { NextRequest } from "next/server";
 import { anthropic, MODEL, PROJE_ASISTANI_SISTEM_MESAJI } from "@/lib/anthropic";
+import { tokenDogrula, premiumMu } from "@/lib/firebase-admin";
+import { rateLimitKontrol } from "@/lib/rate-limit";
 import type { ProjeAsistaniRequest, DestekProgrami } from "@/types";
 
 // Destek programlarına özgü değerlendirme kriterleri
@@ -36,6 +38,28 @@ const DESTEK_KRITERLERI: Record<string, string> = {
 };
 
 export async function POST(req: NextRequest) {
+  const kullanici = await tokenDogrula(req);
+  if (!kullanici) {
+    return new Response(JSON.stringify({ error: "Yetkisiz erişim" }), { status: 401 });
+  }
+
+  const premium = await premiumMu(kullanici.uid);
+  if (!premium) {
+    return new Response(JSON.stringify({ error: "Bu özellik premium plana özel" }), { status: 403 });
+  }
+
+  // Premium kullanıcı için saatte 20 analiz
+  const rl = rateLimitKontrol(kullanici.uid, 20, 60 * 60_000);
+  if (!rl.basarili) {
+    return new Response(
+      JSON.stringify({ error: "Saatlik analiz limitine ulaştınız. Lütfen bekleyin." }),
+      {
+        status: 429,
+        headers: { "Retry-After": String(Math.ceil((rl.sifirlanmaMs - Date.now()) / 1000)) },
+      },
+    );
+  }
+
   const { hedefDestekSlug, raporMetni } = (await req.json()) as ProjeAsistaniRequest;
 
   if (!hedefDestekSlug || !raporMetni?.trim()) {

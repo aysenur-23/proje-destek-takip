@@ -6,6 +6,7 @@ import { Footer } from "@/components/layout/Footer";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { WelcomeTour } from "@/components/layout/WelcomeTour";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Toaster } from "sonner";
 
 /* ── Body font: Inter — mükemmel okunabilirlik, web standardı ── */
@@ -64,6 +65,9 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: APP_URL,
+    types: {
+      "application/rss+xml": `${APP_URL}/blog/feed.xml`,
+    },
   },
   robots: {
     index: true,
@@ -90,6 +94,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </div>
           <WelcomeTour />
           <Analytics />
+          <SpeedInsights />
           <Toaster
             position="bottom-right"
             toastOptions={{

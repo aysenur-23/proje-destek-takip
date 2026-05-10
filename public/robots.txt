@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /odeme/
+
+Sitemap: https://www.destektakip.com/sitemap.xml

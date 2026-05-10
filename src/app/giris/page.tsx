@@ -11,7 +11,7 @@ export default function GirisSayfasi() {
   return (
     <div className="flex min-h-[calc(100vh-4rem)]">
       {/* Sol panel — marka */}
-      <div className="hidden lg:flex lg:w-[420px] xl:w-[480px] shrink-0 flex-col justify-between bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 p-10 relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-[420px] xl:w-[480px] shrink-0 flex-col justify-between bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 p-10 relative overflow-hidden select-none">
         {/* Dekor */}
         <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-blue-600/10 blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-64 h-64 rounded-full bg-violet-600/10 blur-3xl pointer-events-none" />
@@ -52,7 +52,7 @@ export default function GirisSayfasi() {
       </div>
 
       {/* Sağ panel — form */}
-      <div className="flex flex-1 flex-col items-center justify-center px-4 py-12 bg-slate-50">
+      <div className="flex flex-1 flex-col items-center justify-center px-4 py-12 bg-slate-50/80">
         <div className="w-full max-w-sm mb-6 lg:hidden">
           <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors">
             <ArrowLeft size={14} />

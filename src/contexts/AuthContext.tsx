@@ -65,6 +65,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               });
               setKullanici(yeniKullanici);
             }
+
+            // Misafirken doldurulmuş firma profilini Firestore'a aktar (bir kez)
+            try {
+              const localFirma = typeof window !== "undefined"
+                ? localStorage.getItem("firmaProfili")
+                : null;
+              if (localFirma) {
+                const firmaDoc = doc(db!, "kullanicilar", user.uid, "profil", "firma");
+                const firmaSnap = await getDoc(firmaDoc);
+                if (!firmaSnap.exists()) {
+                  await setDoc(firmaDoc, {
+                    ...JSON.parse(localFirma),
+                    guncellenmeTarihi: serverTimestamp(),
+                  });
+                }
+              }
+            } catch {
+              // Firma sync hatası kritik değil, sessizce geç
+            }
           } catch {
             setKullanici(null);
           }

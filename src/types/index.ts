@@ -89,6 +89,7 @@ export interface DestekProgrami {
   kriterler: EligibilityCriteria;
   etiketler: string[];
   oncelik: number;
+  sonGuncelleme?: string; // ISO tarih — "2026-05-01"
 }
 
 // ─── Filtreleme ───────────────────────────────────────────────────────────────

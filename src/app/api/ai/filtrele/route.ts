@@ -1,9 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
 import { anthropic, MODEL, FILTRE_SISTEM_MESAJI } from "@/lib/anthropic";
+import { tokenDogrula } from "@/lib/firebase-admin";
+import { rateLimitKontrol } from "@/lib/rate-limit";
 import type { AIFiltreRequest, AIFiltreSonucu } from "@/types";
 import { tumDestekler } from "@/data/destekler";
 
 export async function POST(req: NextRequest) {
+  const kullanici = await tokenDogrula(req);
+  if (!kullanici) {
+    return NextResponse.json({ error: "Yetkisiz erişim" }, { status: 401 });
+  }
+
+  // Dakikada 5 istek (AI filtreleme pahalı)
+  const rl = rateLimitKontrol(kullanici.uid, 5, 60_000);
+  if (!rl.basarili) {
+    return NextResponse.json(
+      { error: "Çok fazla istek. Lütfen bir dakika bekleyin." },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(Math.ceil((rl.sifirlanmaMs - Date.now()) / 1000)),
+          "X-RateLimit-Remaining": "0",
+        },
+      },
+    );
+  }
+
   try {
     const { firma, destekSluglar } = (await req.json()) as AIFiltreRequest;
 
