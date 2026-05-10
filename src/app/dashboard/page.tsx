@@ -27,11 +27,12 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { tumDestekler } from "@/data/destekler";
+import { blogYazilari as blogYazilariListesi } from "@/data/blog";
 import { tumDestekleriFiltrele } from "@/lib/filtrele";
 import type { FirmaProfili, DestekKategori } from "@/types";
 import { db, firebaseReady } from "@/lib/firebase";
 
-type BasvuruDurumu = "basvuruldu" | "degerlendirmede" | "kabul" | "red";
+type BasvuruDurumu = "basvurulmadi" | "planlandı" | "basvuruldu" | "degerlendirmede" | "kabul" | "red";
 
 interface KayitliDestek {
   slug: string;
@@ -55,6 +56,8 @@ interface BildirimTercihleri {
 }
 
 const DURUM_CONFIG: Record<BasvuruDurumu, { label: string; icon: React.ReactNode; cls: string }> = {
+  basvurulmadi: { label: "Takip Edilmiyor", icon: <Clock size={12} />, cls: "text-slate-500 bg-slate-50 border-slate-200" },
+  planlandı: { label: "Planlandı", icon: <Clock size={12} />, cls: "text-amber-600 bg-amber-50 border-amber-200" },
   basvuruldu: { label: "Başvuruldu", icon: <Clock size={12} />, cls: "text-blue-600 bg-blue-50 border-blue-200" },
   degerlendirmede: { label: "Değerlendirmede", icon: <AlertCircle size={12} />, cls: "text-amber-600 bg-amber-50 border-amber-200" },
   kabul: { label: "Kabul", icon: <CheckCircle2 size={12} />, cls: "text-emerald-600 bg-emerald-50 border-emerald-200" },
@@ -105,6 +108,21 @@ export default function DashboardSayfasi() {
       if (local) {
         try { setFirma(JSON.parse(local)); } catch { /* ignore */ }
       }
+      // BasvuruTakipButonu'nun localStorage kayıtlarını oku (basvuru_* anahtarları)
+      if (typeof window !== "undefined") {
+        const takipListesi: KayitliDestek[] = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key?.startsWith("basvuru_")) {
+            const slug = key.replace("basvuru_", "");
+            const durum = localStorage.getItem(key) as BasvuruDurumu | null;
+            if (durum && durum !== "basvurulmadi") {
+              takipListesi.push({ slug, kaydedilmeTarihi: new Date().toISOString(), durum });
+            }
+          }
+        }
+        if (takipListesi.length > 0) setKayitliDestekler(takipListesi);
+      }
       setVeriYukleniyor(false);
       return;
     }
@@ -125,7 +143,29 @@ export default function DashboardSayfasi() {
           }
         }
 
-        // Kayıtlı destekler
+        // BasvuruTakipButonu kayıtları (basvurular subcollection)
+        try {
+          const basvuruSnap = await getDocs(
+            collection(db!, "kullanicilar", firebaseUser.uid, "basvurular")
+          );
+          if (mounted && !basvuruSnap.empty) {
+            const liste: KayitliDestek[] = [];
+            basvuruSnap.forEach((d) => {
+              const data = d.data();
+              if (data.durum && data.durum !== "basvurulmadi") {
+                liste.push({
+                  slug: d.id,
+                  kaydedilmeTarihi: data.guncellenmeTarihi?.toDate?.()?.toISOString() ?? new Date().toISOString(),
+                  durum: data.durum as BasvuruDurumu,
+                });
+              }
+            });
+            liste.sort((a, b) => b.kaydedilmeTarihi.localeCompare(a.kaydedilmeTarihi));
+            if (mounted) setKayitliDestekler(liste);
+          }
+        } catch { /* basvurular koleksiyonu henüz yoksa sessizce geç */ }
+
+        // Kayıtlı destekler (eski koleksiyon — geriye dönük uyumluluk)
         const destekSnap = await getDocs(
           collection(db!, "kullanicilar", firebaseUser.uid, "kayitliDestekler")
         );
@@ -133,7 +173,11 @@ export default function DashboardSayfasi() {
           const liste: KayitliDestek[] = [];
           destekSnap.forEach((d) => liste.push(d.data() as KayitliDestek));
           liste.sort((a, b) => b.kaydedilmeTarihi.localeCompare(a.kaydedilmeTarihi));
-          setKayitliDestekler(liste);
+          if (liste.length > 0) setKayitliDestekler((prev) => {
+            const mevcutSluglar = new Set(prev.map((k) => k.slug));
+            const yeni = liste.filter((l) => !mevcutSluglar.has(l.slug));
+            return [...prev, ...yeni];
+          });
         }
 
         // AI Analiz geçmişi (son 5)
@@ -192,6 +236,31 @@ export default function DashboardSayfasi() {
   const topDestekler = uygunDestekler
     .sort((a, b) => b.uygunlukSkoru - a.uygunlukSkoru)
     .slice(0, 5);
+
+  // Yaklaşan son tarihler (uygun destekler arasından 45 gün içinde kapananlar)
+  const bugun = new Date();
+  const yaklaşanSonTarihler = uygunDestekler
+    .filter(({ destek }) => {
+      if (!destek.basvuruBitis) return false;
+      const bitis = new Date(destek.basvuruBitis);
+      const kalanMs = bitis.getTime() - bugun.getTime();
+      return kalanMs > 0 && kalanMs <= 45 * 24 * 60 * 60 * 1000;
+    })
+    .map(({ destek }) => ({
+      destek,
+      kalanGun: Math.ceil((new Date(destek.basvuruBitis!).getTime() - bugun.getTime()) / (24 * 60 * 60 * 1000)),
+    }))
+    .sort((a, b) => a.kalanGun - b.kalanGun)
+    .slice(0, 4);
+
+  // Blog önerileri (firma sektörü/özelliğine göre)
+  const blogOneriler = (() => {
+    if (!firma) return blogYazilariListesi.slice(0, 3);
+    if (firma.argeYapiyorMu || firma.teknokentteMi) {
+      return blogYazilariListesi.slice(0, 3); // Ar-Ge odaklı
+    }
+    return blogYazilariListesi.slice(0, 3);
+  })();
 
   if (yukleniyor || veriYukleniyor) {
     return (
@@ -537,6 +606,69 @@ export default function DashboardSayfasi() {
                 </Link>
               </div>
             )}
+
+            {/* Yaklaşan Son Tarihler */}
+            {yaklaşanSonTarihler.length > 0 && (
+              <div className="card p-5">
+                <h2 className="font-semibold text-slate-900 mb-3 flex items-center gap-2 text-sm">
+                  <Clock size={15} className="text-red-500" />
+                  Yaklaşan Son Tarihler
+                </h2>
+                <div className="space-y-2">
+                  {yaklaşanSonTarihler.map(({ destek, kalanGun }) => (
+                    <Link
+                      key={destek.slug}
+                      href={`/destekler/${destek.slug}`}
+                      className="flex items-start gap-2.5 rounded-xl border border-slate-200 p-2.5 hover:border-red-200 hover:bg-red-50/40 transition-all group"
+                    >
+                      <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-[11px] font-black ${
+                        kalanGun <= 7 ? "bg-red-100 text-red-700" :
+                        kalanGun <= 14 ? "bg-amber-100 text-amber-700" :
+                        "bg-slate-100 text-slate-600"
+                      }`}>
+                        {kalanGun}g
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-semibold text-slate-800 line-clamp-2 group-hover:text-red-700 transition-colors">
+                          {destek.ad}
+                        </p>
+                        <p className="text-[10px] text-slate-400 mt-0.5">
+                          {new Date(destek.basvuruBitis!).toLocaleDateString("tr-TR", { day: "numeric", month: "short" })}
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Blog Önerileri */}
+            <div className="card p-5">
+              <h2 className="font-semibold text-slate-400 mb-3 text-xs uppercase tracking-widest flex items-center gap-1.5">
+                <FileText size={11} />
+                Blog Rehberleri
+              </h2>
+              <div className="space-y-2">
+                {blogOneriler.map((yazi) => (
+                  <Link
+                    key={yazi.slug}
+                    href={`/blog/${yazi.slug}`}
+                    className="flex items-start gap-2 rounded-xl p-2 hover:bg-slate-50 transition-colors group"
+                  >
+                    <ArrowRight size={12} className="shrink-0 mt-0.5 text-slate-400 group-hover:text-blue-500 transition-colors" />
+                    <p className="text-xs text-slate-600 line-clamp-2 group-hover:text-blue-700 transition-colors leading-relaxed">
+                      {yazi.baslik}
+                    </p>
+                  </Link>
+                ))}
+                <Link
+                  href="/blog"
+                  className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors mt-1"
+                >
+                  Tüm rehberler <ChevronRight size={11} />
+                </Link>
+              </div>
+            </div>
 
             {/* Bildirim tercihleri */}
             <div className="card p-5">
