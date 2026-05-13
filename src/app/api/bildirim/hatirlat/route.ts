@@ -119,6 +119,32 @@ export async function POST(req: NextRequest) {
         const kullanici = kullaniciDoc.data();
         if (!kullanici.email) continue;
 
+        // Kullanıcının bildirim tercihlerini kontrol et
+        const tercihlerSnap = await db
+          .collection("kullanicilar")
+          .doc(kullaniciDoc.id)
+          .collection("tercihler")
+          .doc("bildirim")
+          .get();
+
+        const tercihler = tercihlerSnap.exists
+          ? (tercihlerSnap.data() as { emailEtkin?: boolean; sonTarihGunleri?: number })
+          : { emailEtkin: true, sonTarihGunleri: 14 };
+
+        // Email bildirimleri kapalıysa bu kullanıcıyı atla
+        if (tercihler.emailEtkin === false) continue;
+
+        // Kullanıcının özel eşiğine göre uygun destekleri belirle
+        const kullaniciEsigi = tercihler.sonTarihGunleri ?? 14;
+        const kullaniciIcinYaklasanlar = tumDestekler.filter((d) => {
+          if (!d.aktif || !d.basvuruBitis) return false;
+          const bitis = new Date(d.basvuruBitis);
+          const kalanGun = Math.ceil((bitis.getTime() - bugun.getTime()) / 86400000);
+          return kalanGun > 0 && (kalanGun === kullaniciEsigi || HATIRLATMA_GUNLERI.includes(kalanGun));
+        });
+
+        if (kullaniciIcinYaklasanlar.length === 0) continue;
+
         // Kullanıcının takibindeki destekleri al
         const takipSnap = await db
           .collection("kullanicilar")
@@ -132,7 +158,7 @@ export async function POST(req: NextRequest) {
             .map((d) => d.id),
         );
 
-        const ilgiliDestekler = yaklaşanlar
+        const ilgiliDestekler = kullaniciIcinYaklasanlar
           .filter((d) => takipSluglar.has(d.slug))
           .map((d) => {
             const bitis = new Date(d.basvuruBitis!);
