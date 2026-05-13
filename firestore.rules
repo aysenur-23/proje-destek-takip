@@ -1,0 +1,79 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Yardımcı fonksiyonlar ───────────────────────────────────────────────
+
+    // Kimlik doğrulaması yapılmış mı?
+    function girisYapilmis() {
+      return request.auth != null;
+    }
+
+    // Erişilen kaynak kendi hesabına mı ait?
+    function kendiKaynak(uid) {
+      return girisYapilmis() && request.auth.uid == uid;
+    }
+
+    // İstek boyutu kontrolü (büyük veri girişini engelle)
+    function boyutKontrolu(maxAlan) {
+      return request.resource.data.keys().size() <= maxAlan;
+    }
+
+    // ── Kullanıcı koleksiyonu ───────────────────────────────────────────────
+    // Yapı: kullanicilar/{uid}/profil/firma
+    //        kullanicilar/{uid}/tercihler/bildirim
+    //        kullanicilar/{uid}/analizler/{analizId}
+
+    match /kullanicilar/{uid} {
+      // Kullanıcı kendi ana belgesini okuyabilir/yazabilir
+      allow read, write: if kendiKaynak(uid);
+
+      // ── Profil alt koleksiyonu ──────────────────────────────────────────
+      match /profil/{belgeId} {
+        allow read: if kendiKaynak(uid);
+        allow create, update: if kendiKaynak(uid) && boyutKontrolu(30);
+        allow delete: if kendiKaynak(uid);
+      }
+
+      // ── Tercihler alt koleksiyonu ───────────────────────────────────────
+      match /tercihler/{belgeId} {
+        allow read: if kendiKaynak(uid);
+        allow create, update: if kendiKaynak(uid) && boyutKontrolu(15);
+        allow delete: if kendiKaynak(uid);
+      }
+
+      // ── AI Analiz geçmişi alt koleksiyonu ──────────────────────────────
+      // Kullanıcı kendi analizlerini okuyabilir; yazma sadece sunucu tarafından
+      // yapılır (Firebase Admin SDK → güvenlik kurallarını bypass eder)
+      match /analizler/{analizId} {
+        allow read: if kendiKaynak(uid);
+        // Yazma: yalnızca Admin SDK (server-side) — istemciden yazmaya izin yok
+        allow write: if false;
+      }
+    }
+
+    // ── Destek programları (sadece okuma) ───────────────────────────────────
+    // Statik destek verisi varsa Firestore'da tutmak için; şu an statik dosyada
+    match /destekler/{destekId} {
+      allow read: if true;           // Herkese açık okuma
+      allow write: if false;         // Yalnızca Admin üzerinden
+    }
+
+    // ── Program görüntülenme sayaçları (sadece okuma) ───────────────────────
+    match /istatistikler/{belgeId} {
+      allow read: if true;           // Herkese açık
+      allow write: if false;         // Yalnızca Admin üzerinden güncellenir
+    }
+
+    // ── Admin koleksiyonu — tüm erişim engeli ───────────────────────────────
+    match /admin/{belge=**} {
+      allow read, write: if false;
+    }
+
+    // ── Catch-all: tanımlanmamış koleksiyonlara erişimi engelle ─────────────
+    match /{belge=**} {
+      allow read, write: if false;
+    }
+  }
+}

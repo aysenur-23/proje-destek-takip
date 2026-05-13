@@ -41,11 +41,16 @@ export function rateLimitKontrol(
 }
 
 // Bellek sızıntısını önle: 5 dakikada bir süresi dolmuş kayıtları temizle
+// .unref() ile Node.js process'in interval için beklemesini engelle (test ortamı dahil)
 if (typeof setInterval !== "undefined") {
-  setInterval(() => {
+  const temizleyici = setInterval(() => {
     const simdi = Date.now();
     for (const [key, val] of kayitlar.entries()) {
       if (simdi > val.sifirlanacak) kayitlar.delete(key);
     }
   }, 5 * 60_000);
+  // Node.js ortamında .unref() mevcut — process'in bu timer için beklemesini engelle
+  if (typeof temizleyici === "object" && temizleyici !== null && "unref" in temizleyici) {
+    (temizleyici as NodeJS.Timeout).unref();
+  }
 }

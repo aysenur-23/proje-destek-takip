@@ -53,3 +53,15 @@ export async function premiumMu(uid: string): Promise<boolean> {
     return false;
   }
 }
+
+/** Admin Firestore instance döner (server-side işlemler için). */
+export async function getAdminFirestore() {
+  const app = getAdminApp();
+  if (!app) return null;
+  try {
+    const { getFirestore } = await import("firebase-admin/firestore");
+    return getFirestore(app);
+  } catch {
+    return null;
+  }
+}

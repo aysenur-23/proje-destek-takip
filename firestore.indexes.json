@@ -1,0 +1,13 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "analizler",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "olusturulmaZamani", "order": "DESCENDING" },
+        { "fieldPath": "hedefDestekSlug", "order": "ASCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

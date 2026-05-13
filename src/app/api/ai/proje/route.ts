@@ -98,12 +98,45 @@ ${kriterler}
   "oncelikliDuzeltmeler": ["1. öncelik", "2. öncelik"]
 }`;
 
+  // ── Firestore'a analiz geçmişi kaydetme (arka planda, streaming'i bloklamaz) ──
+  async function analizKaydet(uid: string, sonuc: string) {
+    try {
+      const { getAdminFirestore } = await import("@/lib/firebase-admin");
+      const db = await getAdminFirestore();
+      if (!db) return;
+
+      // JSON çıktısını parse etmeyi dene
+      let analizSonucu: Record<string, unknown> = { ham: sonuc };
+      const esleme = sonuc.match(/\{[\s\S]*\}/);
+      if (esleme) {
+        try { analizSonucu = JSON.parse(esleme[0]) as Record<string, unknown>; } catch { /* ham saklansın */ }
+      }
+
+      const destekAdi = d?.ad ?? hedefDestekSlug;
+      await db
+        .collection("kullanicilar")
+        .doc(uid)
+        .collection("analizler")
+        .add({
+          hedefDestekSlug,
+          destekAdi,
+          raporOzeti: raporMetni.slice(0, 500),   // ilk 500 karakter
+          sonuc: analizSonucu,
+          olusturulmaZamani: new Date().toISOString(),
+        });
+    } catch (err) {
+      // Kaydetme hatası kritik değil — streaming devam eder
+      console.warn("[analizKaydet] Firestore yazma hatası:", err);
+    }
+  }
+
   // Streaming yanıt
   const stream = new TransformStream();
   const writer = stream.writable.getWriter();
   const encoder = new TextEncoder();
 
   (async () => {
+    let tamMetin = "";
     try {
       const akis = await anthropic.messages.stream({
         model: MODEL,
@@ -125,9 +158,13 @@ ${kriterler}
 
       for await (const parca of akis) {
         if (parca.type === "content_block_delta" && parca.delta.type === "text_delta") {
+          tamMetin += parca.delta.text;
           await writer.write(encoder.encode(parca.delta.text));
         }
       }
+
+      // Stream bittikten sonra arka planda Firestore'a kaydet
+      void analizKaydet(kullanici.uid, tamMetin);
     } catch (err) {
       console.error("Proje AI akış hatası:", err);
       await writer.write(encoder.encode(JSON.stringify({ error: "AI analizi başarısız" })));

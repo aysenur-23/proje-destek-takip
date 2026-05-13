@@ -19,6 +19,7 @@ import {
 import Link from "next/link";
 import { tumDestekler } from "@/data/destekler";
 import { BasvuruTakipButonu } from "@/components/destekler/BasvuruTakipButonu";
+import { GoruntulemeIzleyici } from "@/components/destekler/GoruntulemeIzleyici";
 
 export const revalidate = 86400;
 
@@ -130,6 +131,9 @@ export default async function DestekDetaySayfasi({ params }: { params: Promise<{
 
   return (
     <div className="container py-10 max-w-3xl">
+      {/* Görüntülenme takibi — sessiz client ping */}
+      <GoruntulemeIzleyici slug={slug} />
+
       {/* Geri link */}
       <Link
         href="/destekler"

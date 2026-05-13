@@ -17,6 +17,7 @@ import {
   User,
   ChevronDown,
   Settings2,
+  History,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -162,6 +163,18 @@ export function Navbar() {
                   </span>
                   <ChevronDown size={12} className="text-slate-400" />
                 </Link>
+                {kullanici.plan === "premium" && (
+                  <Link
+                    href="/analizler"
+                    className={cn(
+                      "flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 shadow-[var(--shadow-xs)] hover:border-violet-300 hover:bg-violet-50 hover:text-violet-600 transition-colors",
+                      (pathname === "/analizler") && "border-violet-200 bg-violet-50 text-violet-600",
+                    )}
+                    title="Analiz Geçmişi"
+                  >
+                    <History size={14} />
+                  </Link>
+                )}
                 <Link
                   href="/ayarlar"
                   className="flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 shadow-[var(--shadow-xs)] hover:border-blue-300 hover:bg-blue-50 hover:text-blue-600 transition-colors"
@@ -307,6 +320,21 @@ export function Navbar() {
                     )}
                   </div>
                 </Link>
+                {kullanici.plan === "premium" && (
+                  <Link
+                    href="/analizler"
+                    onClick={() => setMenuAcik(false)}
+                    className={cn(
+                      "flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-violet-50 transition-colors",
+                      pathname === "/analizler" && "bg-violet-50",
+                    )}
+                  >
+                    <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-violet-100">
+                      <History size={14} className="text-violet-600" />
+                    </div>
+                    <span className="text-sm font-medium text-slate-700">Analiz Geçmişi</span>
+                  </Link>
+                )}
                 <Link
                   href="/ayarlar"
                   onClick={() => setMenuAcik(false)}
