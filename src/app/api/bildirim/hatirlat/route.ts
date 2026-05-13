@@ -9,10 +9,13 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { Resend } from "resend";
 import { tumDestekler } from "@/data/destekler";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy init — build sırasında API key olmayabilir
+function getResend() {
+  const { Resend } = require("resend");
+  return new Resend(process.env.RESEND_API_KEY);
+}
 
 // Kaç gün kaldığında hatırlatma gönderilecek
 const HATIRLATMA_GUNLERI = [7, 3, 1];
@@ -34,7 +37,7 @@ async function emailGonder(data: HatirlatmaEmail) {
     )
     .join("");
 
-  await resend.emails.send({
+  await getResend().emails.send({
     from: "Destek Takip <bildirim@destektakip.com>",
     to: data.kullaniciEmail,
     subject: `🔔 ${data.destekler.length} destek programının son başvuru tarihi yaklaşıyor`,
