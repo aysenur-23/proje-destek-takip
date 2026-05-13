@@ -12,8 +12,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { tumDestekler } from "@/data/destekler";
 
 // Lazy init — build sırasında API key olmayabilir
-function getResend() {
-  const { Resend } = require("resend");
+async function getResend() {
+  const { Resend } = await import("resend");
   return new Resend(process.env.RESEND_API_KEY);
 }
 
@@ -37,7 +37,8 @@ async function emailGonder(data: HatirlatmaEmail) {
     )
     .join("");
 
-  await getResend().emails.send({
+  const resend = await getResend();
+  await resend.emails.send({
     from: "Destek Takip <bildirim@destektakip.com>",
     to: data.kullaniciEmail,
     subject: `🔔 ${data.destekler.length} destek programının son başvuru tarihi yaklaşıyor`,

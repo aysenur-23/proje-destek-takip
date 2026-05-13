@@ -9,11 +9,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { tokenDogrula } from "@/lib/firebase-admin";
 import type { FirmaProfili } from "@/types";
 
-function getAdminFirestore() {
-  const { getApps, getApp, initializeApp, cert } = require("firebase-admin/app");
-  const { getFirestore } = require("firebase-admin/firestore");
-
+async function getAdminFirestore() {
   if (!process.env.FIREBASE_PROJECT_ID) return null;
+
+  const { getApps, getApp, initializeApp, cert } = await import("firebase-admin/app");
+  const { getFirestore } = await import("firebase-admin/firestore");
 
   const app =
     getApps().length > 0
@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const db = getAdminFirestore();
+    const db = await getAdminFirestore();
     if (!db) return NextResponse.json({ firma: null }, { status: 200 });
 
     const snap = await db
@@ -74,7 +74,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ hata: "Geçersiz JSON" }, { status: 400 });
   }
 
-  // Temel doğrulama
   if (
     !firma.ad ||
     typeof firma.kurulusYili !== "number" ||
@@ -87,10 +86,10 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const db = getAdminFirestore();
+    const db = await getAdminFirestore();
     if (!db) throw new Error("Firestore bağlantısı yok");
 
-    const { FieldValue } = require("firebase-admin/firestore");
+    const { FieldValue } = await import("firebase-admin/firestore");
 
     await db
       .collection("kullanicilar")
@@ -98,10 +97,7 @@ export async function POST(req: NextRequest) {
       .collection("profil")
       .doc("firma")
       .set(
-        {
-          ...firma,
-          guncellenmeTarihi: FieldValue.serverTimestamp(),
-        },
+        { ...firma, guncellenmeTarihi: FieldValue.serverTimestamp() },
         { merge: true },
       );
 

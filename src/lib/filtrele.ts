@@ -2,10 +2,6 @@ import type { DestekProgrami, EligibilityCriteria, FiltreSonucu, FirmaProfili } 
 
 const BUGUN = new Date();
 
-function firmaYasiHesapla(kurulusYili: number): number {
-  return BUGUN.getFullYear() - kurulusYili;
-}
-
 function sektorUyumu(firmaSektoru: string, kriterSektorler?: string[], kriterHaric?: string[]): boolean {
   if (kriterHaric?.length && kriterHaric.some((k) => firmaSektoru.startsWith(k))) return false;
   if (!kriterSektorler?.length) return true;
@@ -70,7 +66,6 @@ export function destekUygunlukDegerlendir(
   }
 
   // Kuruluş yılı
-  const firmaYasi = firmaYasiHesapla(firma.kurulusYili);
   if (k.minKurulusYili !== undefined && firma.kurulusYili < k.minKurulusYili) {
     eksikKriterler.push(`Firma en fazla ${BUGUN.getFullYear() - k.minKurulusYili} yaşında olmalı`);
   } else if (k.maxKurulusYili !== undefined && firma.kurulusYili > k.maxKurulusYili) {

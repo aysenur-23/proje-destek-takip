@@ -47,7 +47,7 @@ export function OdemeForm() {
       <div className="w-full max-w-sm text-center">
         <Crown size={40} className="mx-auto mb-4 text-violet-500" />
         <h2 className="mb-2 text-xl font-bold text-slate-900">Giriş Gerekiyor</h2>
-        <p className="mb-6 text-slate-500">Premium'a geçmek için önce giriş yapın.</p>
+        <p className="mb-6 text-slate-500">Premium&apos;a geçmek için önce giriş yapın.</p>
         <Link href="/giris?sonra=/odeme" className="btn-md btn-primary">
           Giriş Yap
         </Link>
@@ -154,7 +154,7 @@ export function OdemeForm() {
         <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-600 shadow-lg shadow-violet-600/25">
           <Crown size={22} className="text-white" />
         </div>
-        <h1 className="text-2xl font-bold text-slate-900">Premium'a Geç</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Premium&apos;a Geç</h1>
         <p className="mt-1 text-slate-500">₺299 / ay · İstediğiniz zaman iptal</p>
       </div>
 

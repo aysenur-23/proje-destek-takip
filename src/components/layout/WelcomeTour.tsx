@@ -129,10 +129,21 @@ export function WelcomeTour() {
     }
   }, []);
 
+  const kapat = useCallback(() => {
+    try {
+      localStorage.setItem(TOUR_KEY, "done");
+    } catch {
+      // pass
+    }
+    setGoster(false);
+    // Odağı önceki elemente döndür
+    setTimeout(() => oncekiOdakRef.current?.focus(), 50);
+  }, []);
+
   // ESC ile kapat
   const escKapat = useCallback((e: KeyboardEvent) => {
-    if (e.key === "Escape") kapat(); // eslint-disable-line @typescript-eslint/no-use-before-define
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    if (e.key === "Escape") kapat();
+  }, [kapat]);
 
   useEffect(() => {
     if (!goster) return;
@@ -143,17 +154,6 @@ export function WelcomeTour() {
       document.removeEventListener("keydown", escKapat);
     };
   }, [goster, focusTrap, escKapat]);
-
-  function kapat() {
-    try {
-      localStorage.setItem(TOUR_KEY, "done");
-    } catch {
-      // pass
-    }
-    setGoster(false);
-    // Odağı önceki elemente döndür
-    setTimeout(() => oncekiOdakRef.current?.focus(), 50);
-  }
 
   function ileri() {
     if (adim < ADIMLAR.length - 1) {

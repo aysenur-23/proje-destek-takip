@@ -13,7 +13,6 @@ import {
   RotateCcw,
   Save,
   AlertCircle,
-  ChevronDown,
   ChevronUp,
   Filter,
 } from "lucide-react";

@@ -13,10 +13,13 @@
 | Framework | Next.js 15 (App Router) |
 | Dil | TypeScript 5 |
 | Stil | Tailwind CSS 4 + shadcn/ui |
-| Veritabanı | PostgreSQL (Prisma ORM) |
+| Veritabanı | Firebase Firestore (NoSQL) |
+| Auth | Firebase Authentication (client) + firebase-admin (server) |
 | AI | Anthropic Claude API (claude-sonnet-4-6) |
-| Auth | Firebase Authentication + firebase-admin (server) |
-| Deployment | Vercel |
+| Email | Resend (bildirim e-postaları) |
+| Hata takibi | Sentry (Next.js instrumentation hook) |
+| Ödeme | Kuveyt Türk Sanal POS (3D Secure) |
+| Deployment | Vercel (fra1 region, günlük cron job) |
 
 ---
 
@@ -97,7 +100,7 @@ proje-destek-takip/
 
 ---
 
-## Veri Modeli (Prisma)
+## Veri Modeli (Firestore)
 
 ### FirmaProfili
 ```
@@ -370,12 +373,11 @@ NEXT_PUBLIC_APP_URL=https://www.destektakip.com
 
 ```bash
 npm run dev          # Geliştirme sunucusu
-npm run build        # Production build
-npm run db:push      # Prisma şemasını DB'ye uygula
-npm run db:studio    # Prisma Studio (veritabanı UI)
-npm run db:seed      # Destek programlarını seed et
-npm run lint         # ESLint
+npm run build        # Production build (116 sayfa, 0 hata)
+npm run lint         # ESLint (0 hata, 0 uyarı)
 npm run type-check   # TypeScript derleme kontrolü
+npx jest            # 32 birim testi
+npx playwright test  # E2E testler
 ```
 
 ---
@@ -383,16 +385,16 @@ npm run type-check   # TypeScript derleme kontrolü
 ## Geliştirme Sırası
 
 1. [x] CLAUDE.md + proje yapısı
-2. [ ] package.json + yapılandırma dosyaları
-3. [ ] Prisma şeması
-4. [ ] TypeScript tipleri
-5. [ ] Statik destek verisi (tüm kategoriler)
-6. [ ] Kural tabanlı filtreleme motoru
-7. [ ] Next.js app layout + Navbar
-8. [ ] Firma profil formu (wizard)
-9. [ ] Destek listeleme + filtre paneli
-10. [ ] Destek detay sayfası
-11. [ ] AI ek filtreleme API + widget
-12. [ ] Proje asistanı sayfası (Modül 1)
-13. [ ] Seed scripti + veritabanı bağlantısı
-14. [ ] Responsive polish + son test
+2. [x] package.json + yapılandırma dosyaları
+3. [x] Firebase Firestore veri modeli
+4. [x] TypeScript tipleri
+5. [x] Statik destek verisi (80+ program)
+6. [x] Kural tabanlı filtreleme motoru
+7. [x] Next.js app layout + Navbar
+8. [x] Firma profil formu (wizard)
+9. [x] Destek listeleme + filtre paneli
+10. [x] Destek detay sayfası
+11. [x] AI ek filtreleme API + widget
+12. [x] Proje asistanı sayfası (Modül 1)
+13. [x] Firebase bağlantısı + auth + Firestore
+14. [x] Responsive polish + son test + ESLint sıfır hata

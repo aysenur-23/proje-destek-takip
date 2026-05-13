@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LayoutDashboard, ExternalLink, ArrowUpRight } from "lucide-react";
+import { LayoutDashboard, ArrowUpRight } from "lucide-react";
 
 const linkler = {
   "Ürün": [
@@ -42,7 +42,7 @@ export function Footer() {
               <span className="font-bold text-white text-sm tracking-tight">Destek Takip</span>
             </Link>
             <p className="text-sm leading-relaxed text-slate-500 mb-5 max-w-xs">
-              Türkiye'deki tüm hibe, teşvik ve destek programlarını firmanıza özel filtreleyin. Yapay zeka destekli analiz ile başvurularınızı güçlendirin.
+              Türkiye&apos;deki tüm hibe, teşvik ve destek programlarını firmanıza özel filtreleyin. Yapay zeka destekli analiz ile başvurularınızı güçlendirin.
             </p>
             <div className="flex flex-wrap gap-2">
               {["TÜBİTAK", "KOSGEB", "TKDK"].map((k) => (

@@ -25,7 +25,7 @@ export default function GirisSayfasi() {
           </Link>
 
           <h2 className="text-2xl font-bold text-white mb-3 leading-snug">
-            Türkiye'nin tüm hibe<br />programları tek yerde
+            Türkiye&apos;nin tüm hibe<br />programları tek yerde
           </h2>
           <p className="text-slate-400 text-sm leading-relaxed mb-8">
             TÜBİTAK, KOSGEB, TKDK, AB Fonları ve daha fazlası. Firmanıza özel filtreleme ile dakikalar içinde uygun destekleri keşfedin.

@@ -1,12 +1,12 @@
 "use client";
 
-import { useMemo, useCallback } from "react";
+import { useMemo, useCallback, useState, useEffect } from "react";
 import Link from "next/link";
 import { Printer, ArrowLeft, CheckCircle2, AlertCircle, Info, Download } from "lucide-react";
 import { tumDestekler } from "@/data/destekler";
 import { tumDestekleriFiltrele } from "@/lib/filtrele";
 import type { FirmaProfili, DestekKategori } from "@/types";
-import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
 
 const KATEGORI_TURKCE: Record<DestekKategori, string> = {
   TUBITAK: "TÜBİTAK",
@@ -41,7 +41,34 @@ function localdenYukle(): FirmaProfili | null {
 }
 
 export default function RaporSayfasi() {
-  const firma = useMemo(localdenYukle, []);
+  const { firebaseUser } = useAuth();
+  const [firmaFirestore, setFirmaFirestore] = useState<FirmaProfili | null>(null);
+  const firmaLocal = useMemo(localdenYukle, []);
+
+  // Giriş yapılmışsa Firestore'dan firma profilini çek
+  useEffect(() => {
+    if (!firebaseUser) return;
+    let aktif = true;
+    (async () => {
+      try {
+        const { db } = await import("@/lib/firebase");
+        const { doc, getDoc } = await import("firebase/firestore");
+        if (!db) return;
+        const snap = await getDoc(
+          doc(db, "kullanicilar", firebaseUser.uid, "profil", "firma")
+        );
+        if (aktif && snap.exists()) {
+          setFirmaFirestore(snap.data() as FirmaProfili);
+        }
+      } catch {
+        // Firestore hatası kritik değil — localStorage ile devam et
+      }
+    })();
+    return () => { aktif = false; };
+  }, [firebaseUser]);
+
+  // Firestore öncelikli, yoksa localStorage
+  const firma = firmaFirestore ?? firmaLocal;
 
   const sonuclar = useMemo(() => {
     if (!firma) return [];
@@ -121,7 +148,7 @@ export default function RaporSayfasi() {
             className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-900 transition-colors"
           >
             <ArrowLeft size={15} />
-            Dashboard'a Dön
+            Dashboard&apos;a Dön
           </Link>
           <div className="flex items-center gap-2">
             <button

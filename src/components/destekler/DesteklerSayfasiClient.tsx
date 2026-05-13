@@ -26,8 +26,6 @@ import {
   ArrowRight,
   RotateCcw,
   SlidersHorizontal,
-  TrendingDown,
-  TrendingUp,
   ArrowUpDown,
   Info,
   type LucideIcon,
@@ -871,7 +869,7 @@ function BosListeDurumu({
         </div>
         <p className="font-semibold text-slate-600 mb-1">Şu an tam uygun program yok</p>
         <p className="text-sm text-slate-400 mb-5 max-w-xs leading-relaxed">
-          Firma profilinizi güncelleyin veya "sınırda" programları da görmek için filtreyi kaldırın.
+          Firma profilinizi güncelleyin veya &quot;sınırda&quot; programları da görmek için filtreyi kaldırın.
         </p>
         <div className="flex gap-2 flex-wrap justify-center">
           <button onClick={onSifirla} className="btn-sm btn-secondary gap-1.5 text-xs">

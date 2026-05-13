@@ -12,8 +12,6 @@ import {
   ChevronRight,
   Star,
   Clock,
-  BarChart3,
-  Sparkles,
   ArrowUpRight,
   Check,
 } from "lucide-react";
@@ -177,7 +175,7 @@ export default function AnaSayfa() {
               </h1>
 
               <p className="text-[17px] text-white/60 mb-8 leading-relaxed">
-                Şirket bilgilerini gir, 40'tan fazla destek programı arasından uygun olanları anında filtrele. Yapay zeka ile başvurunu güçlendir.
+                Şirket bilgilerini gir, 40&apos;tan fazla destek programı arasından uygun olanları anında filtrele. Yapay zeka ile başvurunu güçlendir.
               </p>
 
               <div className="flex flex-wrap gap-3 mb-10">
@@ -417,7 +415,7 @@ export default function AnaSayfa() {
               Basit, şeffaf fiyatlandırma
             </h2>
             <p className="text-slate-500 text-lg max-w-md mx-auto leading-relaxed">
-              Temel filtreleme tamamen ücretsiz. AI özelliklerine ihtiyaç duyduğunuzda premium'a geçin.
+              Temel filtreleme tamamen ücretsiz. AI özelliklerine ihtiyaç duyduğunuzda premium&apos;a geçin.
             </p>
           </ScrollReveal>
 

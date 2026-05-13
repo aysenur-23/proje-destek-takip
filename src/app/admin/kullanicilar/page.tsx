@@ -306,7 +306,7 @@ export default function AdminKullanicilarPage() {
                           ) : (
                             <UserCheck size={11} />
                           )}
-                          Ücretsiz'e Düşür
+                          Ücretsiz&apos;e Düşür
                         </button>
                       )}
                     </div>
