@@ -57,7 +57,11 @@ export default withSentryConfig(nextConfig, {
 
   silent: !process.env.CI,
 
-  // Bundle boyutunu küçük tut
-  disableLogger: true,
-  automaticVercelMonitors: false,
+  // Bundle boyutunu küçük tut (v8+ sözdizimi)
+  webpack: {
+    treeshake: {
+      removeDebugLogging: true,
+    },
+    automaticVercelMonitors: false,
+  },
 });
