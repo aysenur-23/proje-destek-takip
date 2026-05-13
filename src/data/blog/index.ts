@@ -243,6 +243,202 @@ export const blogYazilari: BlogYazisi[] = [
 <p>Özellikle yazılım, sağlık teknolojileri ve temiz enerji alanlarında Türk startupları EIC Accelerator'dan destek almıştır. TÜBİTAK TEYDEB, Horizon projelerinde ortak kuruluş olarak yer alarak Türk firmalara rehberlik edebilmektedir.</p>
     `,
   },
+  {
+    slug: "tkdk-ipard-basvuru-rehberi-2026",
+    baslik: "TKDK IPARD III 2026 Başvuru Rehberi — Tarım ve Kırsal Kalkınma Hibeleri",
+    ozet:
+      "TKDK'nın yürüttüğü IPARD III programı, tarım işletmeleri ve kırsal turizm yatırımları için %50–65 hibe sunuyor. 2026 çağrılarında dikkat edilmesi gerekenler ve başvuru adımları.",
+    kategori: "KOSGEB",
+    etiketler: ["tkdk", "ipard", "tarım", "kırsal kalkınma", "hibe", "2026"],
+    yayinTarihi: "2026-05-05",
+    okumaSuresi: 7,
+    icerik: `
+<h2>TKDK ve IPARD III Nedir?</h2>
+<p>Tarım ve Kırsal Kalkınmayı Destekleme Kurumu (TKDK), AB'nin IPARD (Katılım Öncesi Yardım Aracı — Kırsal Kalkınma) fonlarını Türkiye'de uygulayan ajans kurumudur. IPARD III programı 2021–2027 dönemini kapsamakta ve tarım sektörü ile kırsal ekonomi için önemli hibe imkânları sunmaktadır.</p>
+
+<h2>2026'da Açık Olan Tedbirler</h2>
+
+<h3>Tedbir 4.1 — Tarımsal İşletmelerin Fiziki Varlıklarına Yönelik Yatırımlar</h3>
+<p>Bitkisel ve hayvansal üretim işletmeleri için makine-ekipman alımı ve altyapı yatırımları:</p>
+<ul>
+  <li><strong>Hibe oranı:</strong> %50 (genç çiftçi ve dağlık alan için %60–65)</li>
+  <li><strong>Maksimum yatırım:</strong> 2.000.000 €</li>
+  <li><strong>Uygun giderler:</strong> Sera, ahır, depo, sulama sistemleri, traktör ve ekipman</li>
+</ul>
+
+<h3>Tedbir 4.2 — Tarım Ürünlerinin İşlenmesi ve Pazarlanması</h3>
+<p>Gıda işleme tesisleri modernizasyonu ve soğuk zincir yatırımları:</p>
+<ul>
+  <li><strong>Hibe oranı:</strong> %50</li>
+  <li><strong>Maksimum yatırım:</strong> 3.000.000 €</li>
+  <li><strong>Öncelikli sektörler:</strong> Süt, et, meyve-sebze, bal, zeytinyağı işleme</li>
+</ul>
+
+<h3>Tedbir 7.4 — Kırsal Turizm</h3>
+<p>Köy turizmi, ekoturizm ve tarım turizmi (agro-turizm) tesisleri:</p>
+<ul>
+  <li><strong>Hibe oranı:</strong> %50</li>
+  <li><strong>Maksimum yatırım:</strong> 500.000 €</li>
+  <li><strong>Uygun yatırımlar:</strong> Köy pansiyonu, kır evi, ahır-otel dönüşümü</li>
+</ul>
+
+<h2>Başvuru Süreci ve Kritik Adımlar</h2>
+<ol>
+  <li><strong>İl Koordinatörlüğüne Danışın:</strong> TKDK'nın 42 ilde koordinatörlüğü bulunmaktadır. Çağrı açıklamadan önce ön görüşme talep edin.</li>
+  <li><strong>Yatırım Yeri Belgesi:</strong> Arazi tapusu veya uzun dönem kira sözleşmesi (en az 10 yıl) zorunlu.</li>
+  <li><strong>İş Planı Hazırlayın:</strong> TKDK'nın özel formatında hazırlanmış iş planı kabul sürecini doğrudan etkiler. Piyasa analizi ve geri ödeme hesaplamaları eksiksiz olmalı.</li>
+  <li><strong>Fatura ve Teklif:</strong> Yatırım kalemlerinin en az 3 proforma fatura ile desteklenmesi gerekiyor.</li>
+  <li><strong>Çevre ve İzin Belgeleri:</strong> Belirli yatırım büyüklükleri için ÇED belgesi veya GSM ruhsatı şart.</li>
+</ol>
+
+<h2>TKDK Başvurularında Yaygın Hatalar</h2>
+<ol>
+  <li><strong>Yanlış tedbir seçimi:</strong> Proje kapsamı yanlış tedbire başvurulursa kabul edilmez. İl koordinatörüyle mutlaka doğrulayın.</li>
+  <li><strong>Arazi belgesi eksikliği:</strong> Kira sözleşmesinin süresinin proje + 5 yıl sonrasına kadar uzanması gerekiyor.</li>
+  <li><strong>Gerçekçi olmayan iş planı:</strong> Gelir projeksiyonlarının piyasa verileriyle desteklenmemesi sık reddedilen nedenler arasında.</li>
+  <li><strong>Son dakika başvurusu:</strong> Sistem yoğunluğu nedeniyle çağrı kapanmadan en az 2 hafta önce tamamlayın.</li>
+</ol>
+
+<h2>Genç Çiftçi ve Kadın Girişimci Avantajları</h2>
+<p>IPARD III, 40 yaş altı genç çiftçiler ve kadın girişimciler için hibe oranını 10 puan artırıyor. Ayrıca dağlık alanlarda faaliyet gösterenlere ek puan uygulanıyor. Bu özel gruplara dahilseniz belgelerinizi başvuruda açıkça beyan edin.</p>
+    `,
+  },
+  {
+    slug: "sgk-istihdam-tesvik-rehberi-2026",
+    baslik: "SGK İstihdam Teşvikleri 2026 — İşverenler İçin Tam Rehber",
+    ozet:
+      "4447, 5746, 7252 ve diğer kanunlar kapsamındaki SGK prim destekleri, hangi işe alımlarda geçerli ve nasıl başvurulur? İşveren başına yıllık tasarruf hesapları ve uygulama örnekleri.",
+    kategori: "KOSGEB",
+    etiketler: ["sgk", "istihdam teşviki", "prim desteği", "4447", "5746", "işveren"],
+    yayinTarihi: "2026-05-08",
+    okumaSuresi: 9,
+    icerik: `
+<h2>SGK Teşviklerine Neden Dikkat Etmeli?</h2>
+<p>Türkiye'de işverenler, çalışanları için ödedikleri SGK işveren priminin önemli bir kısmını çeşitli teşvikler aracılığıyla geri alabilir. Doğru teşviki seçen bir işveren, yeni istihdam başına yıllık <strong>15.000–50.000 TL</strong> arasında prim tasarrufu yapabilmektedir.</p>
+
+<h2>2026'da Geçerli Başlıca Teşvikler</h2>
+
+<h3>4447 Sayılı Kanun — İşsizlik Sigortası Kapsamındaki Teşvikler</h3>
+<ul>
+  <li><strong>İşe Giriş Teşviki:</strong> İşsizlik ödeneği alırken işe girenler için 6 ay işveren prim desteği</li>
+  <li><strong>Uzun Dönem İşsiz Teşviki:</strong> 6+ ay işsiz olanlar için 12 aya kadar prim desteği</li>
+  <li><strong>Genç ve Kadın İstihdamı:</strong> 18–29 yaş erkek veya tüm yaş kadınlar için 24–54 ay prim desteği</li>
+</ul>
+
+<h3>5746 Ar-Ge Personeli Prim Desteği</h3>
+<p>Ar-Ge ve tasarım faaliyetlerinde çalışan personel için işveren prim payının <strong>%50'si devlet tarafından</strong> karşılanır. Koşullar:</p>
+<ul>
+  <li>Ar-Ge merkezi belgesi veya tasarım merkezi belgesi zorunlu (Sanayi Bakanlığı onaylı)</li>
+  <li>Yalnızca Ar-Ge/tasarım faaliyetinde fiilen çalışan personel için geçerli</li>
+  <li>Teknokentteki firmalar için zaten %100 karşılandığından ek avantaj sağlamaz</li>
+</ul>
+
+<h3>7252 Dijital Dönüşüm İstihdamı (2025–2026 Uzatması)</h3>
+<p>Dijital dönüşüm projelerinde istihdam edilen yazılım ve veri uzmanları için:</p>
+<ul>
+  <li><strong>Destek Oranı:</strong> İşveren priminin %100'ü — 12 ay</li>
+  <li><strong>Uygun meslekler:</strong> Yazılım geliştirici, veri bilimcisi, siber güvenlik uzmanı, AI mühendisi</li>
+  <li><strong>Koşul:</strong> Firma, KOSGEB Dijital Dönüşüm programından destek almış veya başvurmuş olmalı</li>
+</ul>
+
+<h3>Engelli Çalışan Teşviki</h3>
+<p>%40 ve üzeri engel oranına sahip çalışanlar için işveren SGK priminin tamamı devlet tarafından ödenir. Ayrıca yasal kota yükümlülüğü karşılanmaktadır.</p>
+
+<h2>Teşvik Seçiminde Öncelik Sırası</h2>
+<table>
+  <thead><tr><th>Çalışan Profili</th><th>Öncelikli Teşvik</th><th>Tahmini Aylık Tasarruf</th></tr></thead>
+  <tbody>
+    <tr><td>18–29 yaş erkek</td><td>4447/EK-2 Genç İstihdamı</td><td>1.800–3.500 TL</td></tr>
+    <tr><td>Kadın (tüm yaşlar)</td><td>4447/EK-2 Kadın İstihdamı</td><td>1.800–4.000 TL</td></tr>
+    <tr><td>Ar-Ge personeli</td><td>5746 Ar-Ge Prim Desteği</td><td>2.000–5.000 TL</td></tr>
+    <tr><td>Yazılım/dijital uzman</td><td>7252 Dijital Dönüşüm</td><td>3.500–7.000 TL</td></tr>
+    <tr><td>Engelli çalışan</td><td>Engelli İstihdam Teşviki</td><td>3.000–6.000 TL</td></tr>
+  </tbody>
+</table>
+
+<h2>Önemli: Teşvik Çakışmaları</h2>
+<p>Aynı çalışan için birden fazla teşvik aynı anda kullanılamaz. Muhasebe yazılımınızda her çalışan için teşvik kodu seçimi kritik önem taşır. Yanlış seçim halinde SGK denetiminde cezai yaptırım riski doğar. Bir SGK danışmanından destek almanız tavsiye edilir.</p>
+
+<h2>Başvuru Süreci</h2>
+<ol>
+  <li>SGK e-Bildirge sistemi üzerinden çalışanın teşvik kodunu belirleyin</li>
+  <li>İlgili belgeleri (engelli raporu, işsizlik ödeneği bitiş yazısı vb.) saklayın</li>
+  <li>Aylık prim bildirgelerinde doğru kodu kullanmaya başlayın — teşvik otomatik uygulanır</li>
+  <li>Vergi dairesine ek başvuru gerekmez; SGK sistemi ile entegre çalışır</li>
+</ol>
+    `,
+  },
+  {
+    slug: "kalkinma-ajanslari-destek-rehberi-2026",
+    baslik: "Kalkınma Ajansları Destek Programları 2026 — Bölgesel Hibe Rehberi",
+    ozet:
+      "Türkiye'nin 26 kalkınma ajansı bölgesel proje teklif çağrılarıyla yılda yüz milyonlarca TL hibe dağıtıyor. 2026 aktif çağrılar, başvuru stratejisi ve ajans seçimi rehberi.",
+    kategori: "KOSGEB",
+    etiketler: ["kalkınma ajansı", "bölgesel hibe", "proje teklif çağrısı", "2026", "istka", "bebka", "izka"],
+    yayinTarihi: "2026-05-10",
+    okumaSuresi: 6,
+    icerik: `
+<h2>Kalkınma Ajansları Sistemi</h2>
+<p>Türkiye, NUTS-2 bölgelerine göre 26 kalkınma ajansına sahiptir. Her ajans kendi bölgesinin öncelik alanlarına göre yıllık <strong>Proje Teklif Çağrısı (PTC)</strong> açar. 2026 yılında bu çağrıların toplam bütçesinin 2 milyar TL'yi aşması beklenmektedir.</p>
+
+<h2>2026 Aktif Çağrılar (Seçili Ajanslar)</h2>
+
+<h3>İSTKA — İstanbul Kalkınma Ajansı</h3>
+<ul>
+  <li><strong>Çağrı Adı:</strong> Yeşil Ekonomi ve Döngüsel İş Modelleri 2026</li>
+  <li><strong>Hibe oranı:</strong> %50 (KOBİ'ler için) — %25 (büyük işletmeler)</li>
+  <li><strong>Asgari–Azami:</strong> 500.000 – 5.000.000 TL</li>
+  <li><strong>Son başvuru:</strong> 2026 Temmuz</li>
+  <li><strong>Öncelik alanları:</strong> Döngüsel üretim, atık geri dönüşüm teknolojileri, yeşil lojistik</li>
+</ul>
+
+<h3>İZKA — İzmir Kalkınma Ajansı</h3>
+<ul>
+  <li><strong>Çağrı Adı:</strong> Dijital Dönüşüm ve Teknoloji Yatırımları</li>
+  <li><strong>Hibe oranı:</strong> %50</li>
+  <li><strong>Asgari–Azami:</strong> 250.000 – 3.000.000 TL</li>
+  <li><strong>Son başvuru:</strong> 2026 Haziran</li>
+  <li><strong>Öncelik alanları:</strong> Otomotiv dijitalleşme, liman teknolojileri, tarım-teknoloji</li>
+</ul>
+
+<h3>BEBKA — Bursa Eskişehir Bilecik Kalkınma Ajansı</h3>
+<ul>
+  <li><strong>Çağrı Adı:</strong> Sürdürülebilir Sanayi ve İhracat Kapasitesi</li>
+  <li><strong>Hibe oranı:</strong> %50</li>
+  <li><strong>Asgari–Azami:</strong> 300.000 – 2.500.000 TL</li>
+  <li><strong>Son başvuru:</strong> 2026 Mayıs</li>
+  <li><strong>Öncelik alanları:</strong> Tekstil modernizasyonu, otomotiv yan sanayi, ihracat altyapısı</li>
+</ul>
+
+<h2>Başarılı Proje Nasıl Yazılır?</h2>
+<h3>1. Bölgesel Önceliklerle Örtüşün</h3>
+<p>Her ajansın Bölge Planı ve Faaliyet Programı'nda belirtilen stratejik önceliklerle uyuşmayan projeler birinci turda elenir. Başvurmadan önce ajansın web sitesindeki "Öncelik Eksenleri" dokümanını okuyun.</p>
+
+<h3>2. Ortaklık Kurun</h3>
+<p>Çoğu ajans çağrısı üniversite veya kamu kurumu ortaklığını puan avantajı olarak değerlendirir. Bölgenizdeki üniversitenin teknoloji transfer ofisi (TTO) ile erken iletişime geçin.</p>
+
+<h3>3. Sürdürülebilirlik Planı</h3>
+<p>Hibe bitiminde projenin nasıl devam edeceğini somut gelir modeli ile anlatın. "Proje sonrası sürdürülebilirlik" değerlendirme formlarında genellikle %20 ağırlık taşır.</p>
+
+<h3>4. İzleme Göstergeleri (SMART)</h3>
+<p>İstihdam, ihracat, verimlilik artışı gibi somut ve ölçülebilir hedefler koyun. "İş süreçleri iyileştirilecek" yerine "Proje sonunda üretim kapasitesi %30 artacak ve 5 yeni istihdam yaratılacak" yazın.</p>
+
+<h2>Kalkınma Ajansı mı, TÜBİTAK/KOSGEB mi?</h2>
+<table>
+  <thead><tr><th>Kriter</th><th>Kalkınma Ajansı</th><th>TÜBİTAK/KOSGEB</th></tr></thead>
+  <tbody>
+    <tr><td>Odak</td><td>Bölgesel ekonomik kalkınma</td><td>Ar-Ge ve inovasyon</td></tr>
+    <tr><td>Proje türü</td><td>Yatırım, kapasite, altyapı</td><td>Teknoloji geliştirme</td></tr>
+    <tr><td>Ar-Ge zorunluluğu</td><td>Hayır</td><td>Evet (TÜBİTAK için)</td></tr>
+    <tr><td>Bölge kısıtı</td><td>Evet — ajansın bölgesinde</td><td>Hayır</td></tr>
+    <tr><td>Max hibe</td><td>5.000.000 TL'ye kadar</td><td>1.5–10M TL arası</td></tr>
+  </tbody>
+</table>
+
+<h2>Ajansınızı Nasıl Bulursunuz?</h2>
+<p>Türkiye'nin 26 kalkınma ajansının listesi ve bölge haritasına <strong>kalkinma.gov.tr</strong> adresinden ulaşabilirsiniz. Firma adresinizin bulunduğu ile göre doğru ajansı belirleyin — bazı firmalar birden fazla il ofisi nedeniyle farklı ajansın çağrısına başvurabilir.</p>
+    `,
+  },
 ];
 
 export function blogYazisiBul(slug: string): BlogYazisi | undefined {

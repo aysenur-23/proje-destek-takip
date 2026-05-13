@@ -7,6 +7,8 @@ const linkler = {
     { href: "/firma", label: "Firma Profili" },
     { href: "/proje-asistani", label: "Proje Asistanı" },
     { href: "/planlar", label: "Fiyatlandırma" },
+    { href: "/blog", label: "Blog & Rehberler" },
+    { href: "/rapor", label: "Uygunluk Raporu" },
   ],
   "Destek Kaynakları": [
     { href: "https://www.tubitak.gov.tr", label: "TÜBİTAK", external: true },

@@ -41,6 +41,8 @@ const KATEGORI_RENK: Record<string, string> = {
   "AB Fonları": "bg-amber-50 text-amber-700 border-amber-100",
 };
 
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://destektakip.com";
+
 export default async function BlogYazisiSayfasi({ params }: Props) {
   const { slug } = await params;
   const yazi = blogYazisiBul(slug);
@@ -51,8 +53,41 @@ export default async function BlogYazisiSayfasi({ params }: Props) {
     .filter((y) => y.slug !== yazi.slug && y.kategori === yazi.kategori)
     .slice(0, 2);
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: yazi.baslik,
+    description: yazi.ozet,
+    datePublished: yazi.yayinTarihi,
+    dateModified: yazi.yayinTarihi,
+    url: `${APP_URL}/blog/${yazi.slug}`,
+    image: `${APP_URL}/blog/${yazi.slug}/opengraph-image`,
+    author: {
+      "@type": "Organization",
+      name: "Destek Takip",
+      url: APP_URL,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "Destek Takip",
+      url: APP_URL,
+      logo: {
+        "@type": "ImageObject",
+        url: `${APP_URL}/logo.svg`,
+      },
+    },
+    keywords: yazi.etiketler.join(", "),
+    articleSection: yazi.kategori,
+    timeRequired: `PT${yazi.okumaSuresi}M`,
+    inLanguage: "tr-TR",
+  };
+
   return (
     <div className="min-h-screen bg-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Üst bant */}
       <div
         className={`h-1 w-full ${
