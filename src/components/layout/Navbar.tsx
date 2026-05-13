@@ -162,6 +162,13 @@ export function Navbar() {
                   </span>
                   <ChevronDown size={12} className="text-slate-400" />
                 </Link>
+                <Link
+                  href="/ayarlar"
+                  className="flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 shadow-[var(--shadow-xs)] hover:border-blue-300 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                  title="Hesap Ayarları"
+                >
+                  <User size={14} />
+                </Link>
                 <button onClick={handleCikis} className="btn-sm btn-secondary gap-1.5 text-xs">
                   <LogOut size={13} />
                   Çıkış
@@ -299,6 +306,16 @@ export function Navbar() {
                       <p className="text-[10px] text-slate-400">Panele git →</p>
                     )}
                   </div>
+                </Link>
+                <Link
+                  href="/ayarlar"
+                  onClick={() => setMenuAcik(false)}
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-slate-50 transition-colors"
+                >
+                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100">
+                    <User size={14} className="text-slate-500" />
+                  </div>
+                  <span className="text-sm font-medium text-slate-700">Hesap Ayarları</span>
                 </Link>
                 <button onClick={handleCikis} className="btn-md btn-secondary w-full">
                   <LogOut size={15} />

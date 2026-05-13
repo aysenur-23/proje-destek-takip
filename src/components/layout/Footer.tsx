@@ -21,6 +21,7 @@ const linkler = {
     { href: "/giris", label: "Giriş Yap" },
     { href: "/kayit", label: "Ücretsiz Kayıt" },
     { href: "/planlar", label: "Premium" },
+    { href: "/ayarlar", label: "Hesap Ayarları" },
   ],
 };
 
